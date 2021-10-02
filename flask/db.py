@@ -1,154 +1,144 @@
 # coding: utf-8
-from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, MetaData, String, Time
-from sqlalchemy.dialects.postgresql.ranges import INT4RANGE
+from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String
+from sqlalchemy.dialects.postgresql import INT4RANGE, TIME
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import NullType
 from sqlalchemy.ext.declarative import declarative_base
-
+from app import db
 
 Base = declarative_base()
 metadata = Base.metadata
 
 
-
-class Clas(Base):
-    __tablename__ = 'Class'
-
-    classId = Column(String(8), primary_key=True)
-    className = Column(String(144), nullable=False)
-    noStudents = Column(INT4RANGE)
-    courseId = Column(ForeignKey('Course.courseId'))
-    trainerId = Column(ForeignKey('Trainer.trainerId'), nullable=False)
-    startDate = Column(Date, nullable=False)
-    endDate = Column(Date, nullable=False)
-    startTime = Column(Time(True), nullable=False)
-    endTime = Column(Time(True), nullable=False)
-    numAvailableSeats = Column(Integer, nullable=False)
-    enrolmentStart = Column(DateTime(True))
-    enrolmentEnd = Column(DateTime(True))
-    lessonIdList = Column(ARRAY(VARCHAR()))
-
-    Course = relationship('Course', primaryjoin='Clas.courseId == Course.courseId', backref='class')
-    Trainer = relationship('Trainer', primaryjoin='Clas.trainerId == Trainer.trainerId', backref='class')
-
-
-
-class Course(Base):
+class Course(db.Model):
     __tablename__ = 'Course'
 
-    courseId = Column(String(8), primary_key=True)
-    courseName = Column(String(144), nullable=False)
-    prereq = Column(ARRAY(VARCHAR(length=8)))
-    retireStatus = Column(Boolean, nullable=False)
+    courseId = db.Column(String(8), primary_key=True)
+    courseName = db.Column(String(144), nullable=False)
+    prereq = db.Column(ARRAY(String(length=8)))
+    retireStatus = db.Column(Boolean, nullable=False)
 
 
-
-class Employee(Base):
+class Employee(db.Model):
     __tablename__ = 'Employee'
 
-    employeeId = Column(String(8), primary_key=True)
-    email = Column(String(144))
-    contactNo = Column(Integer)
+    employeeId = db.Column(String(8), primary_key=True)
+    email = db.Column(String(144))
+    contactNo = db.Column(Integer)
 
 
 class HumanResource(Employee):
     __tablename__ = 'HumanResource'
 
-    HRId = Column(ForeignKey('Employee.employeeId'), primary_key=True)
-    HRName = Column(String(144), nullable=False)
+    HRId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    HRName = db.Column(String(144), nullable=False)
 
 
 class Learner(Employee):
     __tablename__ = 'Learner'
 
-    learnerId = Column(ForeignKey('Employee.employeeId'), primary_key=True)
-    learnerName = Column(String(144), nullable=False)
-    coursesTaken = Column(ARRAY(VARCHAR(length=144)))
-    coursesApplied = Column(NullType)
+    learnerId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    learnerName = db.Column(String(144), nullable=False)
+    coursesTaken = db.Column(ARRAY(String(length=144)))
+    enrolledCourses = db.Column(ARRAY(String()))
+    coursesApplied = db.Column(ARRAY(String()))
 
 
-
-class Enrolment(Base):
-    __tablename__ = 'Enrolment'
-
-    enrolmentId = Column(String(8), primary_key=True)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
-    approvalStatus = Column(String(144), nullable=False)
-    completionStatus = Column(String(144), nullable=False)
-    numLessonCompleted = Column(Integer)
-
-    Course = relationship('Course', primaryjoin='Enrolment.courseId == Course.courseId', backref='enrolments')
-    Learner = relationship('Learner', primaryjoin='Enrolment.learnerId == Learner.learnerId', backref='enrolments')
-
-
-
-class Forum(Base):
-    __tablename__ = 'Forum'
-
-    threadId = Column(String(8), primary_key=True)
-    employeeId = Column(ForeignKey('Employee.employeeId'), nullable=False)
-
-    Employee = relationship('Employee', primaryjoin='Forum.employeeId == Employee.employeeId', backref='forums')
-
-
-
-class Lesson(Base):
-    __tablename__ = 'Lesson'
-
-    lessonId = Column(String(144), primary_key=True)
-    chapterNo = Column(Integer, nullable=False)
-    lessonTitle = Column(String(144), nullable=False)
-    completionStatus = Column(Boolean, nullable=False)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
-    prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
-    courseMaterialId = Column(ForeignKey('Material.MaterialId'), nullable=False)
-
-    Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
-    Material = relationship('Material', primaryjoin='Lesson.courseMaterialId == Material.MaterialId', backref='lessons')
-    Learner = relationship('Learner', primaryjoin='Lesson.learnerId == Learner.learnerId', backref='lessons')
-    parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
-
-
-
-class Material(Base):
+class Material(db.Model):
     __tablename__ = 'Material'
 
-    MaterialId = Column(String(144), primary_key=True)
-    MaterialName = Column(String(144), nullable=False)
-    File = Column(LargeBinary)
+    MaterialId = db.Column(String(144), primary_key=True)
+    MaterialName = db.Column(String(144), nullable=False)
+    File = db.Column(LargeBinary)
 
 
-
-class Quiz(Base):
-    __tablename__ = 'Quiz'
-
-    quizId = Column(String(16), primary_key=True)
-    lessonId = Column(ForeignKey('Lesson.lessonId'), nullable=False)
-    quizName = Column(String(144), nullable=False)
-    graded = Column(Boolean, nullable=False)
-
-    Lesson = relationship('Lesson', primaryjoin='Quiz.lessonId == Lesson.lessonId', backref='quizzes')
-
-
-
-class Score(Base):
-    __tablename__ = 'Score'
-
-    scoreId = Column(String(8), primary_key=True)
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
-    score = Column(INT4RANGE, nullable=False)
-
-    Learner = relationship('Learner', primaryjoin='Score.learnerId == Learner.learnerId', backref='scores')
-    Quiz = relationship('Quiz', primaryjoin='Score.quizId == Quiz.quizId', backref='scores')
-
-
-
-class Trainer(Base):
+class Trainer(db.Model):
     __tablename__ = 'Trainer'
 
-    trainerId = Column(String(8), primary_key=True)
-    trainerName = Column(String(144), nullable=False)
-    coursesAssigned = Column(ARRAY(VARCHAR(length=8)))
+    trainerId = db.Column(String(8), primary_key=True)
+    trainerName = db.Column(String(144), nullable=False)
+    coursesAssigned = db.Column(ARRAY(String(length=8)))
+
+
+class Class(db.Model):
+    __tablename__ = 'Class'
+
+    classId = db.Column(String(8), primary_key=True)
+    className = db.Column(String(144), nullable=False)
+    noStudents = db.Column(INT4RANGE)
+    courseId = db.Column(ForeignKey('Course.courseId'))
+    trainerId = db.Column(ForeignKey('Trainer.trainerId'), nullable=False)
+    startDate = db.Column(Date, nullable=False)
+    endDate = db.Column(Date, nullable=False)
+    startTime = db.Column(TIME(True, 6), nullable=False)
+    endTime = db.Column(TIME(True, 6), nullable=False)
+    numAvailableSeats = db.Column(Integer, nullable=False)
+    enrolmentStart = db.Column(DateTime(True))
+    enrolmentEnd = db.Column(DateTime(True))
+    lessonIdList = db.Column(ARRAY(String()))
+
+    Course = relationship('Course')
+    Trainer = relationship('Trainer')
+
+
+class Forum(db.Model):
+    __tablename__ = 'Forum'
+
+    threadId = db.Column(String(8), primary_key=True)
+    employeeId = db.Column(ForeignKey('Employee.employeeId'), nullable=False)
+
+    Employee = relationship('Employee')
+
+
+class Enrolment(db.Model):
+    __tablename__ = 'Enrolment'
+
+    enrolmentId = db.Column(String(8), primary_key=True)
+    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
+    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
+    approvalStatus = db.Column(String(144), nullable=False)
+    completionStatus = db.Column(String(144), nullable=False)
+    numLessonCompleted = db.Column(Integer)
+
+    Course = relationship('Course')
+    Learner = relationship('Learner')
+
+
+class Lesson(db.Model):
+    __tablename__ = 'Lesson'
+
+    lessonId = db.Column(String(144), primary_key=True)
+    chapterNo = db.Column(Integer, nullable=False)
+    lessonTitle = db.Column(String(144), nullable=False)
+    completionStatus = db.Column(Boolean, nullable=False)
+    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
+    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
+    prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
+    courseMaterialId = db.Column(ForeignKey('Material.MaterialId'), nullable=False)
+
+    Course = relationship('Course')
+    Material = relationship('Material')
+    Learner = relationship('Learner')
+    parent = relationship('Lesson', remote_side=[lessonId])
+
+
+class Quiz(db.Model):
+    __tablename__ = 'Quiz'
+
+    quizId = db.Column(String(16), primary_key=True)
+    lessonId = db.Column(ForeignKey('Lesson.lessonId'), nullable=False)
+    quizName = db.Column(String(144), nullable=False)
+    graded = db.Column(Boolean, nullable=False)
+
+    Lesson = relationship('Lesson')
+
+
+class Score(db.Model):
+    __tablename__ = 'Score'
+
+    scoreId = db.Column(String(8), primary_key=True)
+    quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
+    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
+    score = db.Column(INT4RANGE, nullable=False)
+
+    Learner = relationship('Learner')
+    Quiz = relationship('Quiz')

@@ -1,46 +1,10 @@
 # coding: utf-8
-from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, MetaData, String, Time
-from sqlalchemy.dialects.postgresql.ranges import INT4RANGE
+from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String
+from sqlalchemy.dialects.postgresql import INT4RANGE, TIME
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import NullType
 from sqlalchemy.ext.declarative import declarative_base
 from app import db
 
-
-Base = declarative_base()
-metadata = Base.metadata
-
-
-class Class(db.Model):
-    __tablename__ = 'Class'
-
-    classId = db.Column(String(8), primary_key=True)
-    className = db.Column(String(144), nullable=False)
-    noStudents = db.Column(INT4RANGE)
-    courseId = db.Column(ForeignKey('Course.courseId'))
-    trainerId = db.Column(ForeignKey('Trainer.trainerId'), nullable=False)
-    startDate = db.Column(Date, nullable=False)
-    endDate = db.Column(Date, nullable=False)
-    startTime = db.Column(Time(True), nullable=False)
-    endTime = db.Column(Time(True), nullable=False)
-    numAvailableSeats = db.Column(Integer, nullable=False)
-    enrolmentStart = db.Column(DateTime(True))
-    enrolmentEnd = db.Column(DateTime(True))
-    lessonIdList = db.Column(ARRAY(String()))
-
-    Course = relationship(
-        'Course', primaryjoin='Class.courseId == Course.courseId', backref='class')
-    Trainer = relationship(
-        'Trainer', primaryjoin='Class.trainerId == Trainer.trainerId', backref='class')
-
-    def json(self):
-        return {"employeeId": self.employeeId, 
-        "className": self.className, 
-        "noStudents": self.contactNo, 
-        "contactNo": self.contactNo, 
-        "contactNo": self.contactNo, 
-        "contactNo": self.contactNo, 
-        "contactNo": self.contactNo}
 
 
 class Course(db.Model):
@@ -60,7 +24,11 @@ class Employee(db.Model):
     contactNo = db.Column(Integer)
 
     def json(self):
-        return {"employeeId": self.employeeId, "contactNo": self.contactNo}
+        return {
+            "employeeId": self.employeeId,
+            "email": self.email,
+            "contactNo": self.contactNo
+        }
 
 
 class HumanResource(Employee):
@@ -76,7 +44,57 @@ class Learner(Employee):
     learnerId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
     learnerName = db.Column(String(144), nullable=False)
     coursesTaken = db.Column(ARRAY(String(length=144)))
-    coursesApplied = db.Column(NullType)
+    enrolledCourses = db.Column(ARRAY(String()))
+    coursesApplied = db.Column(ARRAY(String()))
+
+    def getLearnerId(self):
+        return self.learnerId
+
+
+class Material(db.Model):
+    __tablename__ = 'Material'
+
+    MaterialId = db.Column(String(144), primary_key=True)
+    MaterialName = db.Column(String(144), nullable=False)
+    File = db.Column(LargeBinary)
+
+
+class Trainer(db.Model):
+    __tablename__ = 'Trainer'
+
+    trainerId = db.Column(String(8), primary_key=True)
+    trainerName = db.Column(String(144), nullable=False)
+    coursesAssigned = db.Column(ARRAY(String(length=8)))
+
+
+class Class(db.Model):
+    __tablename__ = 'Class'
+
+    classId = db.Column(String(8), primary_key=True)
+    className = db.Column(String(144), nullable=False)
+    noStudents = db.Column(INT4RANGE)
+    courseId = db.Column(ForeignKey('Course.courseId'))
+    trainerId = db.Column(ForeignKey('Trainer.trainerId'), nullable=False)
+    startDate = db.Column(Date, nullable=False)
+    endDate = db.Column(Date, nullable=False)
+    startTime = db.Column(TIME(True, 6), nullable=False)
+    endTime = db.Column(TIME(True, 6), nullable=False)
+    numAvailableSeats = db.Column(Integer, nullable=False)
+    enrolmentStart = db.Column(DateTime(True))
+    enrolmentEnd = db.Column(DateTime(True))
+    lessonIdList = db.Column(ARRAY(String()))
+
+    Course = relationship('Course')
+    Trainer = relationship('Trainer')
+
+
+class Forum(db.Model):
+    __tablename__ = 'Forum'
+
+    threadId = db.Column(String(8), primary_key=True)
+    employeeId = db.Column(ForeignKey('Employee.employeeId'), nullable=False)
+
+    Employee = relationship('Employee')
 
 
 class Enrolment(db.Model):
@@ -89,20 +107,8 @@ class Enrolment(db.Model):
     completionStatus = db.Column(String(144), nullable=False)
     numLessonCompleted = db.Column(Integer)
 
-    Course = relationship(
-        'Course', primaryjoin='Enrolment.courseId == Course.courseId', backref='enrolments')
-    Learner = relationship(
-        'Learner', primaryjoin='Enrolment.learnerId == Learner.learnerId', backref='enrolments')
-
-
-class Forum(db.Model):
-    __tablename__ = 'Forum'
-
-    threadId = db.Column(String(8), primary_key=True)
-    employeeId = db.Column(ForeignKey('Employee.employeeId'), nullable=False)
-
-    Employee = relationship(
-        'Employee', primaryjoin='Forum.employeeId == Employee.employeeId', backref='forums')
+    Course = relationship('Course')
+    Learner = relationship('Learner')
 
 
 class Lesson(db.Model):
@@ -115,25 +121,12 @@ class Lesson(db.Model):
     courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
-    courseMaterialId = db.Column(ForeignKey(
-        'Material.MaterialId'), nullable=False)
+    courseMaterialId = db.Column(ForeignKey('Material.MaterialId'), nullable=False)
 
-    Course = relationship(
-        'Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
-    Material = relationship(
-        'Material', primaryjoin='Lesson.courseMaterialId == Material.MaterialId', backref='lessons')
-    Learner = relationship(
-        'Learner', primaryjoin='Lesson.learnerId == Learner.learnerId', backref='lessons')
-    parent = relationship('Lesson', remote_side=[
-                          lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
-
-
-class Material(db.Model):
-    __tablename__ = 'Material'
-
-    MaterialId = db.Column(String(144), primary_key=True)
-    MaterialName = db.Column(String(144), nullable=False)
-    File = db.Column(LargeBinary)
+    Course = relationship('Course')
+    Material = relationship('Material')
+    Learner = relationship('Learner')
+    parent = relationship('Lesson', remote_side=[lessonId])
 
 
 class Quiz(db.Model):
@@ -144,8 +137,7 @@ class Quiz(db.Model):
     quizName = db.Column(String(144), nullable=False)
     graded = db.Column(Boolean, nullable=False)
 
-    Lesson = relationship(
-        'Lesson', primaryjoin='Quiz.lessonId == Lesson.lessonId', backref='quizzes')
+    Lesson = relationship('Lesson')
 
 
 class Score(db.Model):
@@ -156,15 +148,5 @@ class Score(db.Model):
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     score = db.Column(INT4RANGE, nullable=False)
 
-    Learner = relationship(
-        'Learner', primaryjoin='Score.learnerId == Learner.learnerId', backref='scores')
-    Quiz = relationship(
-        'Quiz', primaryjoin='Score.quizId == Quiz.quizId', backref='scores')
-
-
-class Trainer(db.Model):
-    __tablename__ = 'Trainer'
-
-    trainerId = db.Column(String(8), primary_key=True)
-    trainerName = db.Column(String(144), nullable=False)
-    coursesAssigned = db.Column(ARRAY(String(length=8)))
+    Learner = relationship('Learner')
+    Quiz = relationship('Quiz')

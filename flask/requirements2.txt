@@ -14,7 +14,7 @@ Flask-Login==0.4.0
 Flask-Mail==0.9.1
 Flask-Migrate==2.0.2
 Flask-Script==2.0.5
-flask-sqlacodegen==1.1.8
+Flask-sqlacodegen==1.1.8
 Flask-SQLAlchemy==2.4.0
 Flask-User==1.0.1.5
 Flask-WTF==0.14.2

@@ -11,14 +11,14 @@ from flask.json import jsonify
 from app import db
 from app.models.user_models import UserProfileForm
 # from app.models.employee import Employee
-from app.models.database import Employee
+from app.models.database import Learner
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
 # The Home page is accessible to anyone
 @main_blueprint.route('/')
 def home_page():
-    employeeList = Employee.query.all()
+    employeeList = Learner.query.all()
     if len(employeeList):
         x = jsonify(
             {

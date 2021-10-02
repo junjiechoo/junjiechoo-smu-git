@@ -3,7 +3,7 @@
 {% block content %}
     <h2>{%trans%}Home page{%endtrans%}</h2>
     {% for i in content %}
-    <p>{{i.employeeId}}</p>
+    <p>{{i.learnerId}}</p>
     {% endfor %}
     <p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
     <p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
