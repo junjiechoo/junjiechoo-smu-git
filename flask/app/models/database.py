@@ -50,6 +50,15 @@ class Learner(Employee):
     def getLearnerId(self):
         return self.learnerId
 
+    def getCourseTaken(self):
+        return self.coursesTaken
+    
+    # def signUpClass(self):
+
+
+
+    
+
 
 class Material(db.Model):
     __tablename__ = 'Material'
