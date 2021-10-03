@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from app import db
 
 
-
 class Course(db.Model):
     __tablename__ = 'Course'
 
@@ -14,6 +13,12 @@ class Course(db.Model):
     courseName = db.Column(String(144), nullable=False)
     prereq = db.Column(ARRAY(String(length=8)))
     retireStatus = db.Column(Boolean, nullable=False)
+
+    def displayCourse(self):
+        return self.courseName
+
+    def getPrerequisite(self):
+        return self.prereq
 
 
 class Employee(db.Model):
@@ -37,6 +42,12 @@ class HumanResource(Employee):
     HRId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
     HRName = db.Column(String(144), nullable=False)
 
+    def getHrId(self):
+        return self.HRId
+    
+    def getHrName(self):
+        return self.HRName
+
 
 class Learner(Employee):
     __tablename__ = 'Learner'
@@ -50,14 +61,8 @@ class Learner(Employee):
     def getLearnerId(self):
         return self.learnerId
 
-    def getCourseTaken(self):
+    def getCoursesTaken(self):
         return self.coursesTaken
-    
-    # def signUpClass(self):
-
-
-
-    
 
 
 class Material(db.Model):
@@ -74,6 +79,15 @@ class Trainer(db.Model):
     trainerId = db.Column(String(8), primary_key=True)
     trainerName = db.Column(String(144), nullable=False)
     coursesAssigned = db.Column(ARRAY(String(length=8)))
+
+    def getTrainerId(self):
+        return self.trainerId
+    
+    def trainerName(self):
+        return self.trainerName
+
+    def getCoursesAssigned(self):
+        return self.coursesAssigned
 
 
 class Class(db.Model):
@@ -119,6 +133,18 @@ class Enrolment(db.Model):
     Course = relationship('Course')
     Learner = relationship('Learner')
 
+    def getCompletedCourses(self, learnerId):
+        enrolment_records = Enrolment.query.filter_by(learnerId=learnerId)
+        completed_courses = []
+        for record in enrolment_records:
+            if record.completionStatus == "completed":
+                completed_courses.append(record.courseId)
+        return completed_courses
+    
+    def getApprovalStatus(self, enrolmentId):
+        enrolment_record = Enrolment.query.filter_by(enrolmentId=enrolmentId).first()
+        return enrolment_record.approvalStatus
+
 
 class Lesson(db.Model):
     __tablename__ = 'Lesson'
@@ -130,7 +156,8 @@ class Lesson(db.Model):
     courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
-    courseMaterialId = db.Column(ForeignKey('Material.MaterialId'), nullable=False)
+    courseMaterialId = db.Column(ForeignKey(
+        'Material.MaterialId'), nullable=False)
 
     Course = relationship('Course')
     Material = relationship('Material')

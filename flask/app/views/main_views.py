@@ -19,17 +19,6 @@ main_blueprint = Blueprint('main', __name__, template_folder='templates')
 @main_blueprint.route('/')
 def home_page():
     employeeList = Learner.query.all()
-    if len(employeeList):
-        x = jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "employees": [employee.json() for employee in employeeList]
-
-                }
-            }
-
-        )
     return render_template('main/home_page.html', content=employeeList)
 
 
