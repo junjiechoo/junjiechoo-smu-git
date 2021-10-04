@@ -6,3 +6,6 @@ pip install -r requirements.txt
 
 Package the libraries:
 pip freeze > requirements
+
+Running the app:
+python manage.py runserver
