@@ -11,7 +11,7 @@ from flask.json import jsonify
 from app import db
 from app.models.user_models import UserProfileForm
 # from app.models.employee import Employee
-from app.models.database import Learner
+from app.models.database import *
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -23,10 +23,11 @@ def home_page():
 
 
 # The User page is accessible to authenticated users (users that have logged in)
-@main_blueprint.route('/member')
-@login_required  # Limits access to authenticated users
+@main_blueprint.route('/learner')
+# @login_required  # Limits access to authenticated users
 def member_page():
-    return render_template('main/user_page.html')
+    enrolment = Enrolment.query.all()
+    return render_template('main/learner.html', enrolment=enrolment)
 
 
 # The Admin page is accessible to users with the 'admin' role
@@ -57,4 +58,7 @@ def user_profile_page():
     return render_template('main/user_profile_page.html',
                            form=form)
 
+# @main_blueprint.route('/layout')
 
+# def layout():
+#     return render_template('layout.html')
