@@ -1,3 +1,6 @@
+To create a virtual environment:
+python -m venv venv
+
 To activate the virtual environment:
 In the terminal, run venv\scripts\activate
 
