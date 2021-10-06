@@ -14,7 +14,10 @@ class Course(db.Model):
     prereq = db.Column(ARRAY(String(length=8)))
     retireStatus = db.Column(Boolean, nullable=False)
 
-    def displayCourse(self):
+    def displayCourseId(self):
+        return self.courseId
+
+    def displayCourseName(self):
         return self.courseName
 
     def getPrerequisite(self):

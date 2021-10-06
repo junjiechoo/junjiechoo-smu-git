@@ -1,30 +1,80 @@
 {% extends "layout.html" %}
 
-{% block content %}
     <h2>{%trans%}Learner's Page{%endtrans%}</h2>
 
-    {% for i in enrolment %}
-        {% for j in i.getCompletedCourses('L001') %}
-            <p>{{j}}</p>
-        {% endfor %}
-        <p>{{i.getApprovalStatus('E001')}}</p>
-    {% endfor %}
-
-    {% for i in courses %}
-        <p>Course Name: {{i.displayCourse()}}</p>
-        {% if i.getPrerequisite() != NULL %}
-            <p>prerequisites</p>
-            {% for j in i.getPrerequisite() %}
+{% block content %}
+    <!-- data population for enrolment -->
+    {% if enteredEnrolment %}
+        <h3>Enrolment</h3>
+        {% for i in enrolment %}
+            {% for j in i.getCompletedCourses('L001') %}
                 <p>{{j}}</p>
             {% endfor %}
-        {% endif %}
-    {% endfor %}
+            <p>{{i.getApprovalStatus('E001')}}</p>
+        {% endfor %}
+    {% endif %}
 
+    <!-- data population for courses -->
+    {% if enteredCourses %}
+        <h3>Courses</h3>
+        <table>
+            <tr>
+                <th>CourseID</th>
+                <th>Course Name</th>
+                <th>Prerequisites</th>
+                <th>Apply</th>
+            </tr>
+        
+        {% for i in courses %}
+            <tr>
+                <td>{{i.displayCourseId()}}</td>
+                <td>{{i.displayCourseName()}}</td>
+                <td>
+                    {% if i.getPrerequisite() == None %}
+                        No Prerequisites
+                    {% else %}
+                        {% for j in i.getPrerequisite() %}
+                            <p>{{j}}</p>
+                        {% endfor %}
+                    {% endif %}
+                    
+                </td>
+                <td>
+                    {% if i.getPrerequisite() == None %}
+                        <button onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                    {% else %}
+                        <button onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                    {% endif %}
+                    <div id="{{i.displayCourseId()}}"></div>
+                </td>
+            </tr>   
+        {% endfor %}         
+        </table>
+    {% endif %}
 
-    <!-- <p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
-    <p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
-    <p><a href={{ url_for('main.home_page') }}>{%trans%}Home Page{%endtrans%}</a> (accessible to anyone)</p>
-    <p><a href={{ url_for('main.learner_page') }}>{%trans%}Member Page{%endtrans%}</a> (login_required: member@example.com / Password1)</p>
-    <p><a href={{ url_for('main.admin_page') }}>{%trans%}Admin Page{%endtrans%}</a> (roles_required: admin@example.com / Password1)</p>
-    <p><a href={{ url_for('user.logout') }}>{%trans%}Sign out{%endtrans%}</a></p> -->
+    <script>
+        function checkEligibility(prereq, courseId, coursesCompleted){
+            coursesNeeded = prereq;
+            var remainingCourses = '';
+            if (coursesNeeded == "Nothing"){
+                document.getElementById(courseId).innerHTML = "You Are Eligible!";
+            } else{
+                for (course of coursesCompleted){
+                        var index = coursesNeeded.indexOf(course);
+                        if (index > -1){
+                            coursesNeeded.splice(index,1);
+                        }
+                }
+                
+                if (coursesNeeded.length > 0){
+                    for (course of coursesNeeded){
+                        console.log(course);
+                        remainingCourses += course + ", ";
+                    }
+                }
+                document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
+            }
+        }
+    </script>
 {% endblock %}
+

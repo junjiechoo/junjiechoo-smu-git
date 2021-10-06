@@ -31,12 +31,17 @@ def learner_page():
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
     enrolment = Enrolment.query.all()
-    return render_template('main/learner.html', enrolment=enrolment)
+    return render_template('main/learner.html', enrolment=enrolment, enteredEnrolment=True)
 
 @main_blueprint.route('/learner/courses')
 def courses_page():
     courses = Course.query.all()
-    return render_template('main/learner.html', courses=courses)
+    learner = Learner.query.all()
+    return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
+
+
+
+
 
 # The Admin page is accessible to users with the 'admin' role
 @main_blueprint.route('/admin')

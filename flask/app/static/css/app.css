@@ -11,3 +11,7 @@ hr { border-color: #cccccc; margin: 0px; }
 .with-margins { margin: 10px; }
 
 .col-centered { float: none; margin: 0 auto; }
+
+table, th, tr, td {
+    border: 2px solid black;
+}
