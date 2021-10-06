@@ -25,10 +25,18 @@ def home_page():
 # The User page is accessible to authenticated users (users that have logged in)
 @main_blueprint.route('/learner')
 # @login_required  # Limits access to authenticated users
-def member_page():
+def learner_page():
+    return render_template('main/learner.html')
+
+@main_blueprint.route('/learner/enrolment')
+def enrolment_page():
     enrolment = Enrolment.query.all()
     return render_template('main/learner.html', enrolment=enrolment)
 
+@main_blueprint.route('/learner/courses')
+def courses_page():
+    courses = Course.query.all()
+    return render_template('main/learner.html', courses=courses)
 
 # The Admin page is accessible to users with the 'admin' role
 @main_blueprint.route('/admin')
