@@ -71,6 +71,7 @@
                         console.log(course);
                         remainingCourses += course + ", ";
                     }
+                    remainingCourses = remainingCourses.slice(0,-2);
                 }
                 document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
             }
