@@ -159,13 +159,24 @@ class Lesson(db.Model):
     courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
-    courseMaterialId = db.Column(ForeignKey(
-        'Material.MaterialId'), nullable=False)
+    courseMaterialId = db.Column(ForeignKey('Material.MaterialId'), nullable=False)
 
     Course = relationship('Course')
     Material = relationship('Material')
     Learner = relationship('Learner')
     parent = relationship('Lesson', remote_side=[lessonId])
+
+    def getLessonId(self):
+        return self.lessonId
+
+    def getChapterNo(self):
+        return self.chapterNo
+
+    def getLessonTitle(self):
+        return self.lessonTitle
+
+    def getCourseMaterialId(self):
+        return self.courseMaterialId
 
 
 class Quiz(db.Model):

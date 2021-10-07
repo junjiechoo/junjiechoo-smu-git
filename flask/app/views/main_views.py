@@ -39,9 +39,12 @@ def courses_page():
     learner = Learner.query.all()
     return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
 
-@main_blueprint.route('/lesson')
+@main_blueprint.route('/learner/courses/lesson')
 def lesson_page():
-    return render_template('main/lesson.html')
+    courses = Course.query.all()
+    learner = Learner.query.all()
+    lessons = Lesson.query.filter_by(courseId="IS111");
+    return render_template('main/lesson.html', courses=courses, learner=learner, enteredCourses=True, courseId="IS111", lessons=lessons)
 
 
 

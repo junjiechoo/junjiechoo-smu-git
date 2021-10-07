@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-    <h2>{%trans%}Learner's Page{%endtrans%}</h2>
+    <h2>{%trans%}Course Lessons{%endtrans%}</h2>
 
 {% block content %}
     <!-- data population for enrolment -->
@@ -14,68 +14,50 @@
         {% endfor %}
     {% endif %}
 
-    <!-- data population for courses -->
-    {% if enteredCourses %}
-        <h3>Courses</h3>
-        <table>
-            <tr>
-                <th>CourseID</th>
-                <th>Course Name</th>
-                <th>Prerequisites</th>
-                <th>Apply</th>
-            </tr>
-        
-        {% for i in courses %}
-            <tr>
-                <td>{{i.displayCourseId()}}</td>
-                <td>{{i.displayCourseName()}}</td>
-                <td>
-                    {% if i.getPrerequisite() == None %}
-                        No Prerequisites
-                    {% else %}
-                        {% for j in i.getPrerequisite() %}
-                            <p>{{j}}</p>
-                        {% endfor %}
-                    {% endif %}
-                    
-                </td>
-                <td>
-                    {% if i.getPrerequisite() == None %}
-                        <button onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
-                    {% else %}
-                        <button onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
-                    {% endif %}
-                    <div id="{{i.displayCourseId()}}"></div>
-                </td>
-            </tr>   
-        {% endfor %}         
-        </table>
-    {% endif %}
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar-->
+        <div class="bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-light">{{courseId}}</div>
+            <div class="list-group list-group-flush">
+                {% for lesson in lessons %}
+                    <button class="tablinks list-group-item list-group-item-action list-group-item-light p-3" onclick="loadLessonContent(event, '{{lesson.getLessonId()}}')">Lesson {{lesson.getChapterNo()}}</button>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Page content wrapper-->
+        <div id="page-content-wrapper">
+            <!-- Page content-->
+            <div class="container-fluid">
+                {% for lesson in lessons %}
+                    <div id="{{lesson.getLessonId()}}" class="tabcontent">
+                        <h3>{{lesson.getLessonTitle()}}</h3>
+                        <p>{{lesson.getCourseMaterialId()}}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
     <script>
-        function checkEligibility(prereq, courseId, coursesCompleted){
-            coursesNeeded = prereq;
-            var remainingCourses = '';
-            if (coursesNeeded == "Nothing"){
-                document.getElementById(courseId).innerHTML = "You Are Eligible!";
-            } else{
-                for (course of coursesCompleted){
-                        var index = coursesNeeded.indexOf(course);
-                        if (index > -1){
-                            coursesNeeded.splice(index,1);
-                        }
-                }
-                
-                if (coursesNeeded.length > 0){
-                    for (course of coursesNeeded){
-                        console.log(course);
-                        remainingCourses += course + ", ";
-                    }
-                    remainingCourses = remainingCourses.slice(0,-2);
-                }
-                document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
+        var firsttab = document.getElementsByClassName("tablinks")[0];
+        firsttab.id="defaultOpen";
+
+        function loadLessonContent(evt, lessonId) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
             }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(lessonId).style.display = "block";
+            evt.currentTarget.className += " active";
         }
+
+        console.log("test");
+        document.getElementById("defaultOpen").click();
     </script>
 {% endblock %}
 
