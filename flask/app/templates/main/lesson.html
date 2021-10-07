@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+
+    <h2>{%trans%}Learner's Page{%endtrans%}</h2>
+
+{% block content %}
+    <!-- data population for enrolment -->
+    {% if enteredEnrolment %}
+        <h3>Enrolment</h3>
+        {% for i in enrolment %}
+            {% for j in i.getCompletedCourses('L001') %}
+                <p>{{j}}</p>
+            {% endfor %}
+            <p>{{i.getApprovalStatus('E001')}}</p>
+        {% endfor %}
+    {% endif %}
+
+    <!-- data population for courses -->
+    {% if enteredCourses %}
+        <h3>Courses</h3>
+        <table>
+            <tr>
+                <th>CourseID</th>
+                <th>Course Name</th>
+                <th>Prerequisites</th>
+                <th>Apply</th>
+            </tr>
+        
+        {% for i in courses %}
+            <tr>
+                <td>{{i.displayCourseId()}}</td>
+                <td>{{i.displayCourseName()}}</td>
+                <td>
+                    {% if i.getPrerequisite() == None %}
+                        No Prerequisites
+                    {% else %}
+                        {% for j in i.getPrerequisite() %}
+                            <p>{{j}}</p>
+                        {% endfor %}
+                    {% endif %}
+                    
+                </td>
+                <td>
+                    {% if i.getPrerequisite() == None %}
+                        <button onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                    {% else %}
+                        <button onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                    {% endif %}
+                    <div id="{{i.displayCourseId()}}"></div>
+                </td>
+            </tr>   
+        {% endfor %}         
+        </table>
+    {% endif %}
+
+    <script>
+        function checkEligibility(prereq, courseId, coursesCompleted){
+            coursesNeeded = prereq;
+            var remainingCourses = '';
+            if (coursesNeeded == "Nothing"){
+                document.getElementById(courseId).innerHTML = "You Are Eligible!";
+            } else{
+                for (course of coursesCompleted){
+                        var index = coursesNeeded.indexOf(course);
+                        if (index > -1){
+                            coursesNeeded.splice(index,1);
+                        }
+                }
+                
+                if (coursesNeeded.length > 0){
+                    for (course of coursesNeeded){
+                        console.log(course);
+                        remainingCourses += course + ", ";
+                    }
+                    remainingCourses = remainingCourses.slice(0,-2);
+                }
+                document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
+            }
+        }
+    </script>
+{% endblock %}
+
