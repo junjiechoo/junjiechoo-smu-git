@@ -54,24 +54,25 @@
 
     <script>
         function checkEligibility(prereq, courseId, coursesCompleted){
-            coursesNeeded = prereq;
             var remainingCourses = '';
-            if (coursesNeeded == "Nothing"){
-                document.getElementById(courseId).innerHTML = "You Are Eligible!";
+            if (prereq == "Nothing"){
+                document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button>Apply</button>`;
             } else{
                 for (course of coursesCompleted){
-                        var index = coursesNeeded.indexOf(course);
+                        var index = prereq.indexOf(course);
                         if (index > -1){
-                            coursesNeeded.splice(index,1);
+                            prereq.splice(index,1);
                         }
                 }
                 
-                if (coursesNeeded.length > 0){
-                    for (course of coursesNeeded){
+                if (prereq.length > 0){
+                    for (course of prereq){
                         console.log(course);
                         remainingCourses += course + ", ";
                     }
                     remainingCourses = remainingCourses.slice(0,-2);
+                } else{
+                    document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button>Apply</button>`;
                 }
                 document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
             }
