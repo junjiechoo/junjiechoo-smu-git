@@ -63,6 +63,9 @@ class Learner(Employee):
 
     def getLearnerId(self):
         return self.learnerId
+    
+    def getLearnerName(self):
+        return self.learnerName
 
     def getCoursesTaken(self):
         return self.coursesTaken

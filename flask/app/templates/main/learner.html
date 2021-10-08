@@ -4,6 +4,8 @@
 
 {% block content %}
     <!-- data population for enrolment -->
+    <h5>Wel Fking Come {{learner[0].getLearnerName()}}</h5>
+
     {% if enteredEnrolment %}
         <h3>Enrolment</h3>
         {% for i in enrolment %}
@@ -41,11 +43,20 @@
                 </td>
                 <td>
                     {% if i.getPrerequisite() == None %}
-                        <button onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                        <p>You are Eligible</p>
+                        <!-- this one passes a string correctly to flask-->
+                        <button onclick="applyCourse('{{i.displayCourseId()}}', '{{learner[0].getLearnerId()}}')">Apply!</button>
                     {% else %}
                         <button onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}})">Check Eligibility</button>
+                        <div id="{{i.displayCourseId()}}"></div>
+                        
+                        <!-- why this third input cannot work fk coding -->
+                        <!-- <script>
+                            checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}});
+                        </script> -->
+                        
                     {% endif %}
-                    <div id="{{i.displayCourseId()}}"></div>
+                    
                 </td>
             </tr>   
         {% endfor %}         
@@ -53,17 +64,28 @@
     {% endif %}
 
     <script>
+        // haven't put in learnerId
+        function applyCourse(courseId){
+            var userInfo = courseId;
+            console.log(courseId);
+            console.log('applying for course now');
+            const request = new XMLHttpRequest()
+            request.open("GET", `/learner/courses/${userInfo}`);
+            request.onload = () => {
+                const flaskMessage = request.responseText;
+                console.log(flaskMessage);
+            }
+            request.send();
+        }
+
         function checkEligibility(prereq, courseId, coursesCompleted){
             var remainingCourses = '';
-            if (prereq == "Nothing"){
-                document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button>Apply</button>`;
-            } else{
-                for (course of coursesCompleted){
-                        var index = prereq.indexOf(course);
-                        if (index > -1){
-                            prereq.splice(index,1);
-                        }
-                }
+            for (course of coursesCompleted){
+                    var index = prereq.indexOf(course);
+                    if (index > -1){
+                        prereq.splice(index,1);
+                    }
+            }
                 
                 if (prereq.length > 0){
                     for (course of prereq){
@@ -71,11 +93,11 @@
                         remainingCourses += course + ", ";
                     }
                     remainingCourses = remainingCourses.slice(0,-2);
+                    document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
                 } else{
-                    document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button>Apply</button>`;
+                    // but this one pass a whole div tag to flask
+                    document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button onclick="applyCourse(${courseId})">Apply</button>`;
                 }
-                document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
-            }
         }
     </script>
 {% endblock %}

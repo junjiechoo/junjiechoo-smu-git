@@ -2,9 +2,10 @@
 #
 # Authors: Ling Thio <ling.thio@gmail.com>
 
-
+import xml.dom.minidom
 from flask import Blueprint, redirect, render_template
 from flask import request, url_for
+from flask import json
 from flask_user import current_user, login_required, roles_required
 from flask.json import jsonify
 
@@ -26,18 +27,29 @@ def home_page():
 @main_blueprint.route('/learner')
 # @login_required  # Limits access to authenticated users
 def learner_page():
-    return render_template('main/learner.html')
+    learner = Learner.query.filter_by(learnerId='L003')
+    return render_template('main/learner.html', learner=learner)
 
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
     enrolment = Enrolment.query.all()
+    learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', enrolment=enrolment, enteredEnrolment=True)
 
 @main_blueprint.route('/learner/courses')
 def courses_page():
     courses = Course.query.all()
-    learner = Learner.query.all()
+    learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
+
+
+@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET']) # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+def applicationInfo(userInfo):
+    # userInfo = json.loads(userInfo)
+    userInfo = userInfo
+    print('------------------')
+    print(f"information: {userInfo}")
+    return 'application received'
 
 
 
