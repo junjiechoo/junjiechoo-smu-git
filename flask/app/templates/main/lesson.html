@@ -14,10 +14,12 @@
         {% endfor %}
     {% endif %}
 
+    <h3>{{courseId}} - {{course[0].displayCourseName()}}</h3>
+    <hr class="no-margins">
     <div class="d-flex" id="wrapper">
+        
         <!-- Sidebar-->
         <div class="bg-white" id="sidebar-wrapper">
-            <div class="sidebar-heading border-bottom bg-light">{{courseId}}</div>
             <div class="list-group list-group-flush">
                 {% for lesson in lessons %}
                     <button class="tablinks list-group-item list-group-item-action list-group-item-light p-3" onclick="loadLessonContent(event, '{{lesson.getLessonId()}}')">Lesson {{lesson.getChapterNo()}}</button>
@@ -30,7 +32,7 @@
             <div class="container-fluid">
                 {% for lesson in lessons %}
                     <div id="{{lesson.getLessonId()}}" class="tabcontent">
-                        <h3>{{lesson.getLessonTitle()}}</h3>
+                        <h4>{{lesson.getLessonTitle()}}</h4>
                         <p>{{lesson.getCourseMaterialId()}}</p>
                     </div>
                 {% endfor %}
