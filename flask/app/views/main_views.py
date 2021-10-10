@@ -51,10 +51,16 @@ def applicationInfo(userInfo):
     print()
     print(f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}" )
     print('------------------')
+    
+    # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
+    # newenrolment for some reason parameter 'C002' the db cannot add, tentatively change classId column to allow null
     newEnrolment = Enrolment('E002', f"{userInfo['courseId']}", f"{userInfo['learnerId']}", 'pending', 'pending approval', 0, 'C002')
     # db.session.add(newEnrolment)
-    deleteTestInsert = Enrolment.query.filter_by(enrolmentId ='E002')
-    db.session.delete(deleteTestInsert)
+
+    # delete test row
+    # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
+
+    # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
 
