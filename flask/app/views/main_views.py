@@ -45,11 +45,11 @@ def courses_page():
 
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET']) # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
 def applicationInfo(userInfo):
-    # userInfo = json.loads(userInfo)
-    userInfo = userInfo
+    userInfo = json.loads(userInfo)
+    print()
+    print(f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}" )
     print('------------------')
-    print(f"information: {userInfo}")
-    return 'application received'
+    return('trying to do this part now')
 
 
 
