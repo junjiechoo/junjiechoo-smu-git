@@ -8,6 +8,8 @@ from flask import request, url_for
 from flask import json
 from flask_user import current_user, login_required, roles_required
 from flask.json import jsonify
+from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.sqltypes import NullType
 
 from app import db
 from app.models.user_models import UserProfileForm
@@ -49,6 +51,11 @@ def applicationInfo(userInfo):
     print()
     print(f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}" )
     print('------------------')
+    newEnrolment = Enrolment('E002', f"{userInfo['courseId']}", f"{userInfo['learnerId']}", 'pending', 'pending approval', 0, 'C002')
+    # db.session.add(newEnrolment)
+    deleteTestInsert = Enrolment.query.filter_by(enrolmentId ='E002')
+    db.session.delete(deleteTestInsert)
+    db.session.commit()
     return('trying to do this part now')
 
 

@@ -139,6 +139,16 @@ class Enrolment(db.Model):
     Course = relationship('Course')
     Learner = relationship('Learner')
 
+    def __init__(self,enrolmentId,courseId,learnerId,approvalStatus,completionStatus,numLessonCompleted,classId):
+        self.enrolmentId = enrolmentId
+        self.courseId = courseId
+        self.learnerId = learnerId
+        self.approvalStatus = approvalStatus
+        self.completionStatus = completionStatus
+        self.numLessonCompleted = numLessonCompleted
+        self.classId = classId
+
+
     def getCompletedCourses(self, learnerId):
         enrolment_records = Enrolment.query.filter_by(learnerId=learnerId)
         completed_courses = []
