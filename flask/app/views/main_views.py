@@ -45,9 +45,8 @@ def lesson_page():
     course = Course.query.filter_by(courseId = courseId);
     learner = Learner.query.all()
     lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
-    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons)
-
-
+    material = Material.query.all();
+    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
 
 
 # The Admin page is accessible to users with the 'admin' role

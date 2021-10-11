@@ -150,8 +150,6 @@ class Lesson(db.Model):
     materialIdList = db.Column(ARRAY(String()))
 
     Course = relationship('Course')
-    Material = relationship('Material')
-    Learner = relationship('Learner')
     parent = relationship('Lesson', remote_side=[lessonId])
 
     def getLessonId(self):
@@ -176,10 +174,6 @@ class LessonStatus(db.Model):
     lessonId = db.Column(String(144), primary_key=True)
     completionStatus = db.Column(Boolean, nullable=False)
 
-    Learner = relationship('Learner')
-    Lesson = relationship('Lesson')
-
-
 class Material(db.Model):
     __tablename__ = 'Material'
 
@@ -191,15 +185,29 @@ class Material(db.Model):
 
     Lesson = relationship('Lesson')
 
+    def getMaterialId(self):
+        return self.materialId
+
+    def getMaterialName(self):
+        return self.materialName
+
+    def getMaterialType(self):
+        return self.materialType
+
+    def getFileLink(self):
+        return self.fileLink
+
+    def getMaterialbyId(self, materialId):
+        material_record = Material.query.filter_by(materialId=materialId).first()
+        return material_record
+
+
 class MaterialAccess(db.Model):
     __tablename__ = 'MaterialAccess'
 
     learnerId = db.Column(String(8), primary_key=True)
     materialId = db.Column(String(144), primary_key=True)
     accessStatus = db.Column(Boolean, nullable=False)
-
-    Learner = relationship('Learner')
-    Material = relationship('Material')
 
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
