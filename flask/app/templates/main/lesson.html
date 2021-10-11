@@ -18,6 +18,7 @@
     <hr class="no-margins">
     <div class="d-flex" id="wrapper">
     
+    {% if lessons %}
         <!-- Sidebar-->
         <div class="bg-white" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
@@ -34,7 +35,7 @@
                     <div id="{{lesson.getLessonId()}}" class="tabcontent">
                         <h4 class="pt-3 pb-3">{{lesson.getLessonTitle()}}</h4>
                         <div class="row" style="flex-wrap: unset;">
-                            <div class="col-4" style="width: max-content;">
+                            <div class="col" style="width: max-content;">
                                 {% if lesson.materialIdList %}
                                     <div class="accordion">
                                         <div class="accordion-item">
@@ -113,9 +114,12 @@
             </div>
         </div>
 
-        <div class="col-8" id="iframe" style="min-width: max-content;">
+        <div id="iframe" style="min-width: max-content;">
         </div>
     </div>
+    {% else %}
+        Lessons are not created yet.
+    {% endif %}
 
     <script>
         var firsttab = document.getElementsByClassName("tablinks")[0];
