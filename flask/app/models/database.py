@@ -47,7 +47,7 @@ class HumanResource(Employee):
 
     def getHrId(self):
         return self.HRId
-    
+
     def getHrName(self):
         return self.HRName
 
@@ -63,7 +63,7 @@ class Learner(Employee):
 
     def getLearnerId(self):
         return self.learnerId
-    
+
     def getLearnerName(self):
         return self.learnerName
 
@@ -88,7 +88,7 @@ class Trainer(db.Model):
 
     def getTrainerId(self):
         return self.trainerId
-    
+
     def trainerName(self):
         return self.trainerName
 
@@ -135,11 +135,12 @@ class Enrolment(db.Model):
     approvalStatus = db.Column(String(144), nullable=False)
     completionStatus = db.Column(String(144), nullable=False)
     numLessonCompleted = db.Column(Integer)
+    classId = db.Column(String(8), nullable=False)
 
     Course = relationship('Course')
     Learner = relationship('Learner')
 
-    def __init__(self,enrolmentId,courseId,learnerId,approvalStatus,completionStatus,numLessonCompleted,classId):
+    def __init__(self, enrolmentId, courseId, learnerId, approvalStatus, completionStatus, numLessonCompleted, classId):
         self.enrolmentId = enrolmentId
         self.courseId = courseId
         self.learnerId = learnerId
@@ -148,6 +149,23 @@ class Enrolment(db.Model):
         self.numLessonCompleted = numLessonCompleted
         self.classId = classId
 
+    def getCourseId(self):
+        return self.courseId
+
+    def getLearnerId(self):
+        return self.learnerId
+
+    def getApprovalStatus(self):
+        return self.approvalStatus
+
+    def getCompletionStatus(self):
+        return self.completionStatus
+
+    def getNumLessonCompleted(self):
+        return self.numLessonCompleted
+
+    def getClassId(self):
+        return self.classId
 
     def getCompletedCourses(self, learnerId):
         enrolment_records = Enrolment.query.filter_by(learnerId=learnerId)
@@ -156,10 +174,12 @@ class Enrolment(db.Model):
             if record.completionStatus == "completed":
                 completed_courses.append(record.courseId)
         return completed_courses
-    
-    def getApprovalStatus(self, enrolmentId):
-        enrolment_record = Enrolment.query.filter_by(enrolmentId=enrolmentId).first()
-        return enrolment_record.approvalStatus
+
+    # def getApprovalStatus(self, enrolmentId):
+    #     enrolment_record = Enrolment.query.filter_by(
+    #         enrolmentId=enrolmentId).first()
+    #     print(enrolment_record)
+    #     return enrolment_record.approvalStatus
 
 
 class Lesson(db.Model):

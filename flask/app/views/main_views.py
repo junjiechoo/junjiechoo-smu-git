@@ -19,6 +19,8 @@ from app.models.database import *
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
 # The Home page is accessible to anyone
+
+
 @main_blueprint.route('/')
 def home_page():
     employeeList = Learner.query.all()
@@ -32,11 +34,16 @@ def learner_page():
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner)
 
+
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
-    enrolment = Enrolment.query.all()
+    # enrolments = Enrolment.query.join(Course, Enrolment.courseId==Course.courseId).filter(Enrolment.learnerId=='L003')
+    enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
+    for i in enrolments:
+        print(i)
     learner = Learner.query.filter_by(learnerId='L003')
-    return render_template('main/learner.html', enrolment=enrolment, enteredEnrolment=True)
+    return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
+
 
 @main_blueprint.route('/learner/courses')
 def courses_page():
@@ -45,17 +52,31 @@ def courses_page():
     return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
 
 
-@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET']) # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+# can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
     print()
-    print(f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}" )
+    print(
+        f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}")
     print('------------------')
-    
+
     # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
-    # newenrolment for some reason parameter 'C002' the db cannot add, tentatively change classId column to allow null
-    newEnrolment = Enrolment('E002', f"{userInfo['courseId']}", f"{userInfo['learnerId']}", 'pending', 'pending approval', 0, 'C002')
-    # db.session.add(newEnrolment)
+    latest_enrolment = Enrolment.query.order_by(
+        Enrolment.enrolmentId.desc()).first()
+
+    if latest_enrolment == None:
+        latest_enrolment_id = 'E1'
+    else:
+        latest_enrolment_id = latest_enrolment.enrolmentId
+        enrolment_letter = latest_enrolment_id[0]
+        enrolment_number = int(latest_enrolment_id[1:])
+        enrolment_number += 1
+        latest_enrolment_id = enrolment_letter + str(enrolment_number)
+
+    newEnrolment = Enrolment(
+        latest_enrolment_id, userInfo['courseId'], userInfo['learnerId'], 'pending', 'pending approval', 0, 'C001')
+    db.session.add(newEnrolment)
 
     # delete test row
     # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
@@ -63,9 +84,6 @@ def applicationInfo(userInfo):
     # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
-
-
-
 
 
 # The Admin page is accessible to users with the 'admin' role
