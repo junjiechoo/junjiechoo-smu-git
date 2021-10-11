@@ -17,7 +17,7 @@
     <h3 class="pt-3 pb-3">{{courseId}} - {{course[0].displayCourseName()}}</h3>
     <hr class="no-margins">
     <div class="d-flex" id="wrapper">
-        
+    
         <!-- Sidebar-->
         <div class="bg-white" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
@@ -49,7 +49,7 @@
                                                     {% for materialId in lesson.materialIdList %}
                                                         {% if m.getMaterialId() == materialId %}
                                                             {% if (m.getMaterialbyId(materialId)).getMaterialType() == "document" %}
-                                                                <a href="#" onclick="rendermaterials('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
+                                                                <a href="#" onclick="renderdocuments('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
                                                                 <br/>
                                                             {% endif %}
                                                         {% endif %}
@@ -70,9 +70,8 @@
                                                     {% for materialId in lesson.materialIdList %}
                                                         {% if m.getMaterialId() == materialId %}
                                                             {% if (m.getMaterialbyId(materialId)).getMaterialType() == "video" %}
-                                                                <a class="documentlink" href="{{(m.getMaterialbyId(materialId)).getFileLink()}}">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
+                                                                <a href="#" onclick="rendervideos('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
                                                                 <br/>
-                                                                <a href="#" onclick="rendermaterials('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
                                                             {% endif %}
                                                         {% endif %}
                                                     {% endfor %}
@@ -106,14 +105,15 @@
                                     No materials uploaded yet.
                                 {% endif %}
                             </div>
-                            <div class="col-8" id="iframe" style="min-width: max-content;">
-                                
-                            </div>
+                            
                         </div>
                     </div>
                 {% endfor %}
                 
             </div>
+        </div>
+
+        <div class="col-8" id="iframe" style="min-width: max-content;">
         </div>
     </div>
 
@@ -133,6 +133,7 @@
             }
             document.getElementById(lessonId).style.display = "block";
             evt.currentTarget.className += " active";
+            document.getElementById("iframe").innerHTML = '';
         }
 
         document.getElementById("defaultOpen").click();
@@ -142,11 +143,11 @@
             linkcount = (linkdivs[i].getElementsByTagName("a")).length;
             console.log(linkcount);
             if (linkcount <= 0){
-                linkdivs[i].innerHTML = "No materials uploaded yet.";
+                // linkdivs[i].innerHTML = "No materials uploaded yet.";
             }
         }
 
-        function rendermaterials(link){
+        function renderdocuments(link){
             filetype = (link.split(".")).pop();
             if (filetype.includes("doc") || filetype.includes("ppt") ){
                 console.log(filetype);
@@ -157,9 +158,12 @@
             else {
                 document.getElementById("iframe").innerHTML = '<iframe id="iframe" style="min-width:500px; min-height:600px" frameborder="0" src="' + link + '"></iframe>';
             }
-            
         }
 
+        function rendervideos(link){
+            filetype = (link.split(".")).pop();
+            document.getElementById("iframe").innerHTML = '<video width="500" height="600" controls> <source src="' + link + '" type="video/'+filetype+'">';
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
