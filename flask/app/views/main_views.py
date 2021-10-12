@@ -49,10 +49,10 @@ def enrolment_page():
 def courses_page():
     courses = Course.query.all()
     learner = Learner.query.filter_by(learnerId='L003')
-    return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
     learner = Learner.query.all()
     trainer = Trainer.query.all()
-    return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enteredCourses=True)
+    enrolment = Enrolment.query.filter_by(learnerId='L003')
+    return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
 @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):

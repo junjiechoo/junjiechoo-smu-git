@@ -63,7 +63,16 @@
 
         </td>
         <td>
-            {% if i.getPrerequisite() == None %}
+            {% set alreadyApplied = namespace(value=0) %}
+            {% for application in enrolment %}
+                {% if application.getCourseId() == i.displayCourseId() %}
+                    {% set alreadyApplied.value = 1 %}
+                {% endif %}
+            {% endfor %}
+
+            {% if alreadyApplied.value == 1 %}
+                you have already applied
+            {% elif i.getPrerequisite() == None%}
             <button
                 onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
                 Eligibility</button>
