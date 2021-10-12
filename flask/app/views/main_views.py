@@ -49,11 +49,11 @@ def enrolment_page():
 def courses_page():
     courses = Course.query.all()
     learner = Learner.query.filter_by(learnerId='L003')
-    learner = Learner.query.all()
     trainer = Trainer.query.all()
     enrolment = Enrolment.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
+# for HR to assign trainer and learners to a course
 @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
     learner = request.form.get('learner')
@@ -72,9 +72,7 @@ def course_id(id):
 
     return render_template('main/learner.html')
 
-
-
-
+# to enrol into a course
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
