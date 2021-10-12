@@ -84,6 +84,15 @@ def applicationInfo(userInfo):
     # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
+    
+@main_blueprint.route('/learner/courses/lesson')
+def lesson_page():
+    courseId = "IS111";
+    course = Course.query.filter_by(courseId = courseId);
+    learner = Learner.query.all()
+    lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
+    material = Material.query.all();
+    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
 
 
 # The Admin page is accessible to users with the 'admin' role

@@ -51,7 +51,6 @@ class HumanResource(Employee):
     def getHrName(self):
         return self.HRName
 
-
 class Learner(Employee):
     __tablename__ = 'Learner'
 
@@ -69,15 +68,6 @@ class Learner(Employee):
 
     def getCoursesTaken(self):
         return self.coursesTaken
-
-
-class Material(db.Model):
-    __tablename__ = 'Material'
-
-    MaterialId = db.Column(String(144), primary_key=True)
-    MaterialName = db.Column(String(144), nullable=False)
-    File = db.Column(LargeBinary)
-
 
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
@@ -186,20 +176,71 @@ class Lesson(db.Model):
     __tablename__ = 'Lesson'
 
     lessonId = db.Column(String(144), primary_key=True)
-    chapterNo = db.Column(Integer, nullable=False)
+    lessonNo = db.Column(Integer, nullable=False)
     lessonTitle = db.Column(String(144), nullable=False)
-    completionStatus = db.Column(Boolean, nullable=False)
     courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
-    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
-    courseMaterialId = db.Column(ForeignKey(
-        'Material.MaterialId'), nullable=False)
+    materialIdList = db.Column(ARRAY(String()))
 
     Course = relationship('Course')
-    Material = relationship('Material')
-    Learner = relationship('Learner')
     parent = relationship('Lesson', remote_side=[lessonId])
 
+    def getLessonId(self):
+        return self.lessonId
+
+    def getLessonNo(self):
+        return self.lessonNo
+
+    def getLessonTitle(self):
+        return self.lessonTitle
+
+    def getPrereqLessonId(self):
+        return self.prereqLessonId
+
+    def getMaterialIdList(self):
+        return self.materialIdList
+
+class LessonStatus(db.Model):
+    __tablename__ = 'LessonStatus'
+
+    learnerId = db.Column(String(8), primary_key=True)
+    lessonId = db.Column(String(144), primary_key=True)
+    completionStatus = db.Column(Boolean, nullable=False)
+
+class Material(db.Model):
+    __tablename__ = 'Material'
+
+    materialId = db.Column(String(144), primary_key=True)
+    materialName = db.Column(String(144), nullable=False)
+    materialType = db.Column(String(144), nullable=False)
+    fileLink = db.Column(String(1000), nullable=False)
+    lessonId = db.Column(ForeignKey('Lesson.lessonId'), nullable=False)
+
+    Lesson = relationship('Lesson')
+
+    def getMaterialId(self):
+        return self.materialId
+
+    def getMaterialName(self):
+        return self.materialName
+
+    def getMaterialType(self):
+        return self.materialType
+
+    def getFileLink(self):
+        return self.fileLink
+
+    def getMaterialbyId(self, materialId):
+        material_record = Material.query.filter_by(materialId=materialId).first()
+        return material_record
+
+
+class MaterialAccess(db.Model):
+    __tablename__ = 'MaterialAccess'
+
+    learnerId = db.Column(String(8), primary_key=True)
+    materialId = db.Column(String(144), primary_key=True)
+    accessStatus = db.Column(Boolean, nullable=False)
 
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
@@ -210,7 +251,6 @@ class Quiz(db.Model):
     graded = db.Column(Boolean, nullable=False)
 
     Lesson = relationship('Lesson')
-
 
 class Score(db.Model):
     __tablename__ = 'Score'
