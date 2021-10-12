@@ -60,6 +60,9 @@ class Learner(Employee):
     enrolledCourses = db.Column(ARRAY(String()))
     coursesApplied = db.Column(ARRAY(String()))
 
+    def getLearnerName(self):
+        return self.learnerName
+
     def getLearnerId(self):
         return self.learnerId
 
@@ -78,8 +81,8 @@ class Trainer(db.Model):
 
     def getTrainerId(self):
         return self.trainerId
-
-    def trainerName(self):
+    
+    def getTrainerName(self):
         return self.trainerName
 
     def getCoursesAssigned(self):

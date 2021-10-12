@@ -50,6 +50,29 @@ def courses_page():
     courses = Course.query.all()
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
+    learner = Learner.query.all()
+    trainer = Trainer.query.all()
+    return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enteredCourses=True)
+
+@main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
+def course_id(id):
+    learner = request.form.get('learner')
+    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
+    learner_to_update = Learner.query.get(learner_to_update.learnerId)
+
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+
+    print(learner_to_update.enrolledCourses)
+    learner_to_update.enrolledCourses.append(id)
+    trainer_to_update.coursesAssigned.append(id)
+    db.session.commit()
+    
+
+    return render_template('main/learner.html')
+
+
 
 
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf

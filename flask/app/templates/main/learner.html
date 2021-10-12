@@ -72,14 +72,37 @@
                 onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
                 Eligibility</button>
 
-            <!-- why this third input cannot work fk coding -->
-            <!-- <script>
-                            checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}});
-                        </script> -->
-
             {% endif %}
             <div id="{{i.displayCourseId()}}"></div>
 
+        </td>
+
+        <td>
+            <form action="/learner/courses/{{i.displayCourseId()}}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            Available Learner(s):
+            <select name="learner" method="POST" action="/">
+            {% for learn in learner %}
+                {% if learn.getCoursesTaken().count(i.displayCourseId()) == 0 %}
+                        <option value="{{learn.getLearnerName()}}" SELECTED>{{learn.getLearnerName()}}</option>"
+                {% endif %}    
+            {% endfor %} 
+            </select>
+
+            <br>
+            Available Trainer(s):
+            <select name="trainer" method="POST" action="/">
+            {% for train in trainer %}
+                {% if train.getCoursesAssigned().count(i.displayCourseId()) == 0 %}
+                        <option value="{{train.trainerName}}" SELECTED>{{train.trainerName}}</option>"
+                {% endif %}
+            {% endfor %}
+            </select>    
+
+            <br>
+            <input type="submit" value="Assign" class="btn btn-secondary">
+            </form>
         </td>
     </tr>
     {% endfor %}
