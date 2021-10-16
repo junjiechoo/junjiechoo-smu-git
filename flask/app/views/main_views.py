@@ -13,7 +13,6 @@ from sqlalchemy.sql.sqltypes import NullType
 
 from app import db
 from app.models.user_models import UserProfileForm
-# from app.models.employee import Employee
 from app.models.database import *
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
@@ -26,10 +25,7 @@ def home_page():
     employeeList = Learner.query.all()
     return render_template('main/home_page.html', content=employeeList)
 
-
-# The User page is accessible to authenticated users (users that have logged in)
 @main_blueprint.route('/learner')
-# @login_required  # Limits access to authenticated users
 def learner_page():
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner)
@@ -37,10 +33,7 @@ def learner_page():
 
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
-    # enrolments = Enrolment.query.join(Course, Enrolment.courseId==Course.courseId).filter(Enrolment.learnerId=='L003')
     enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
-    for i in enrolments:
-        print(i)
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
@@ -144,7 +137,3 @@ def user_profile_page():
     return render_template('main/user_profile_page.html',
                            form=form)
 
-# @main_blueprint.route('/layout')
-
-# def layout():
-#     return render_template('layout.html')
