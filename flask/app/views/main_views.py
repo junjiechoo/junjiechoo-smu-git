@@ -27,7 +27,7 @@ def home_page():
 @main_blueprint.route('/learner')
 # @login_required  # Limits access to authenticated users
 def learner_page():
-    #hello-world
+    #hello-wor
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner)
 
