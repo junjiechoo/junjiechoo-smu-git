@@ -185,6 +185,14 @@ class Lesson(db.Model):
     prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
     materialIdList = db.Column(ARRAY(String()))
 
+    def __init__(self, lessonId, lessonNo, lessonTitle, courseId, prereqLessonId, materialIdList):
+        self.lessonId = lessonId
+        self.lessonNo = lessonNo
+        self.lessonTitle = lessonTitle
+        self.courseId = courseId
+        self.prereqLessonId = prereqLessonId
+        self.materialIdList = materialIdList
+
     Course = relationship('Course')
     parent = relationship('Lesson', remote_side=[lessonId])
 
@@ -252,6 +260,12 @@ class Quiz(db.Model):
     lessonId = db.Column(ForeignKey('Lesson.lessonId'), nullable=False)
     quizName = db.Column(String(144), nullable=False)
     graded = db.Column(Boolean, nullable=False)
+
+    def __init__(self, quizId, lessonId, quizName, graded):
+        self.quizId = quizId
+        self.lessonId = lessonId
+        self.quizName = quizName
+        self.graded = graded
 
     Lesson = relationship('Lesson')
 
