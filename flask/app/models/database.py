@@ -178,23 +178,26 @@ class Enrolment(db.Model):
 class Lesson(db.Model):
     __tablename__ = 'Lesson'
 
-    lessonId = db.Column(String(144), primary_key=True)
-    lessonNo = db.Column(Integer, nullable=False)
-    lessonTitle = db.Column(String(144), nullable=False)
-    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
-    prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
-    materialIdList = db.Column(ARRAY(String()))
+    lessonId = Column(String(144), primary_key=True)
+    lessonNo = Column(Integer, nullable=False)
+    lessonTitle = Column(String(144), nullable=False)
+    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
+    prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
+    materialIdList = Column(ARRAY(String(144)))
+    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
 
-    def __init__(self, lessonId, lessonNo, lessonTitle, courseId, prereqLessonId, materialIdList):
+    Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
+    parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
+    Quiz = relationship('Quiz', primaryjoin='Lesson.quizId == Quiz.quizId', backref='lessons')
+
+    def __init__(self, lessonId, lessonNo, lessonTitle, courseId, prereqLessonId, materialIdList, quizId):
         self.lessonId = lessonId
         self.lessonNo = lessonNo
         self.lessonTitle = lessonTitle
         self.courseId = courseId
         self.prereqLessonId = prereqLessonId
         self.materialIdList = materialIdList
-
-    Course = relationship('Course')
-    parent = relationship('Lesson', remote_side=[lessonId])
+        self.quizId = quizId
 
     def getLessonId(self):
         return self.lessonId
@@ -255,19 +258,24 @@ class MaterialAccess(db.Model):
 
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
+    
+    quizId = Column(String(16), primary_key=True)
+    quizName = Column(String(144), nullable=False)
+    graded = Column(Boolean, nullable=False)
 
-    quizId = db.Column(String(16), primary_key=True)
-    lessonId = db.Column(ForeignKey('Lesson.lessonId'), nullable=False)
-    quizName = db.Column(String(144), nullable=False)
-    graded = db.Column(Boolean, nullable=False)
-
-    def __init__(self, quizId, lessonId, quizName, graded):
+    def __init__(self, quizId, quizName, graded):
         self.quizId = quizId
-        self.lessonId = lessonId
         self.quizName = quizName
         self.graded = graded
 
-    Lesson = relationship('Lesson')
+    def getQuizId(self):
+        return self.quizId
+    
+    def getQuizName(self):
+        return self.quizName
+
+    def getGraded(self):
+        return self.graded
 
 class Score(db.Model):
     __tablename__ = 'Score'

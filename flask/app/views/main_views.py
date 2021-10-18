@@ -104,11 +104,14 @@ def lesson_page():
     courseId = "IS111";
     course = Course.query.filter_by(courseId = courseId);
     learner = Learner.query.all()
-    lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
+    # lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
+    # enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
+    lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
     material = Material.query.all();
     return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
 
 
+# IGNORE ALL BELOW FIRST
 # The Admin page is accessible to users with the 'admin' role
 @main_blueprint.route('/admin')
 @roles_required('admin')  # Limits access to users with the 'admin' role
