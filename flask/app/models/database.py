@@ -1,8 +1,10 @@
 # coding: utf-8
+from flask import json
 from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String
 from sqlalchemy.dialects.postgresql import INT4RANGE, TIME
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql.sqltypes import JSON
 from app import db
 
 
@@ -262,11 +264,13 @@ class Quiz(db.Model):
     quizId = Column(String(16), primary_key=True)
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
+    quizContent = Column(JSON, nullable=True)
 
-    def __init__(self, quizId, quizName, graded):
+    def __init__(self, quizId, quizName, graded, quizContent):
         self.quizId = quizId
         self.quizName = quizName
         self.graded = graded
+        self.quizContent = quizContent
 
     def getQuizId(self):
         return self.quizId
@@ -276,6 +280,9 @@ class Quiz(db.Model):
 
     def getGraded(self):
         return self.graded
+    
+    def getQuizContent(self):
+        return self.quizContent
 
 class Score(db.Model):
     __tablename__ = 'Score'

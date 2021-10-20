@@ -110,6 +110,54 @@ def lesson_page():
     material = Material.query.all();
     return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
 
+@main_blueprint.route('/trainer')
+def trainer_page():
+    trainer = Trainer.query.filter_by(trainerId = 'T001')
+    return render_template('main/admin_page.html', trainer=trainer)
+
+@main_blueprint.route('/trainer/quizzes')
+def quiz_page():
+    assignedClasses = Class.query.filter_by(trainerId = 'T001')
+    return render_template('main/admin_page.html', assignedClasses=assignedClasses, enteredCreateQuiz = True)
+
+@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
+def create_quiz(quizInfo):
+    quizContent = {}
+    print("------------------------------")
+    # for key, value in request.form.items():
+    quizContent['question'] = request.form['qn1']
+    quizContent['questionNo'] = 'qn1'
+    answerType = request.form['ansType']
+    quizContent['answerType'] = answerType
+    if answerType == "trueFalse":
+        quizContent['answer'] = request.form['trueFalseAnswer']
+    if request.form['graded'] == 'true':
+        graded = True
+    else:
+        graded = False
+    
+    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+    print(last_quizId)
+    if last_quizId == None:
+        last_quizId = 'Q001'
+    else:
+        last_quizId = last_quizId.quizId
+        quizId_alphabet = last_quizId[0]
+        quiz_number = int(last_quizId[1:])
+        quiz_number += 1
+        newQuizId = quizId_alphabet + str(quiz_number)
+        newquizName = "Quiz " + str(quiz_number)
+    
+    db.session.add(Quiz(newQuizId, newquizName, graded, quizContent))
+    db.session.commit()
+
+    print("------------------------------")
+    return "completed"
+
+
+
+
+
 
 # IGNORE ALL BELOW FIRST
 # The Admin page is accessible to users with the 'admin' role
