@@ -153,7 +153,7 @@ def create_quiz(quizInfo):
     db.session.commit()
 
     print("------------------------------")
-    return "completed"
+    return "quiz created"
 
 
 
