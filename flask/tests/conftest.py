@@ -6,8 +6,10 @@
 #
 # Authors: Ling Thio <ling.thio@gmail.com>
 
+from app.commands.init_db import init_db
 import pytest
 from app import create_app, db as the_db
+from app.models.database import *
 
 # Initialize the Flask-App with test-specific settings
 the_app = create_app(dict(
@@ -15,7 +17,8 @@ the_app = create_app(dict(
     LOGIN_DISABLED=False,  # Enable @register_required
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
     SERVER_NAME='localhost',  # Enable url_for() without request context
-    SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',  # In-memory SQLite DB
+    # In-memory SQLite DB
+    SQLALCHEMY_DATABASE_URI='postgresql://postgres:lavender@localhost:5432/postgres',
     WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
 ))
 
@@ -23,7 +26,6 @@ the_app = create_app(dict(
 the_app.app_context().push()
 
 # Create and populate roles and users tables
-from app.commands.init_db import init_db
 init_db()
 
 
@@ -38,6 +40,7 @@ def db():
     """ Makes the 'db' parameter available to test functions. """
     return the_db
 
+
 @pytest.fixture(scope='function')
 def session(db, request):
     """Creates a new database session for a test."""
@@ -49,6 +52,11 @@ def session(db, request):
 
     db.session = session
 
+    lesson1 = Lesson("l1", "1", "is111 lesson 1", "")
+    quiz1 = Quiz("q1", "l1", "is111 quiz 1", True)
+    db.session.add(quiz1)
+    db.session.commit()
+
     def teardown():
         transaction.rollback()
         connection.close()
@@ -57,7 +65,9 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
+
 @pytest.fixture(scope='session')
 def client(app):
     return app.test_client()
+
 

@@ -12,3 +12,6 @@ pip freeze > requirements
 
 Running the app:
 python manage.py runserver
+
+Regenerate the database ORMs:
+python generateORM.py

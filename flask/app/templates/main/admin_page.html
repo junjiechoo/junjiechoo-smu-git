@@ -1,11 +1,109 @@
 {% extends "layout.html" %}
 
+
 {% block content %}
-    <h2>{%trans%}Admin Page{%endtrans%}</h2>
-    <p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
-    <p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
-    <p><a href={{ url_for('main.home_page') }}>{%trans%}Home Page{%endtrans%}</a> (accessible to anyone)</p>
-    <p><a href={{ url_for('main.learner_page') }}>{%trans%}Member Page{%endtrans%}</a> (login_required: member@example.com / Password1)</p>
-    <p><a href={{ url_for('main.admin_page') }}>{%trans%}Admin Page{%endtrans%}</a> (roles_required: admin@example.com / Password1)</p>
-    <p><a href={{ url_for('user.logout') }}>{%trans%}Sign out{%endtrans%}</a></p>
+<!-- what is the diff between className and courseName -->
+    {% if enteredCreateQuiz %}
+        {% if assignedClasses.count() > 0 %}
+            <table>
+                <tr>
+                    <th>CourseId</th>
+                    <th>ClassId</th>
+                    <th>Current Available Seats</th>
+                    <th>Quizzes</th>
+                </tr>
+                {% for class in assignedClasses%}
+                    <tr>
+                        <td>{{class.courseId}}</td>
+                        <td>{{class.classId}}</td>
+                        <td>{{class.numAvailableSeats}}</td>
+
+                        {% if class.lessonIdList == None %}
+                            <td>to add quizzes, you need to have at least one lesson for this class</td>
+                        {% else %}
+                        <!-- add logic to check if a quiz has been created for the lesson -->
+                            <td>
+                                {% for lesson in class.lessonIdList %}
+                                    {{lesson}}
+                                    <button onclick="createQuiz('{{class.courseId}}', '{{class.classId}}', {{lesson}})">Create Quiz</button>
+                                {% endfor %}
+                            </td>
+                        {% endif %}
+                        
+                    </tr>
+                {% endfor %}
+            </table>
+            <br><br>
+            <div id="quizTemplate"></div>
+        {% else %}
+            <h2>you have not been assigned to any class</h2>
+        {% endif %}
+    {% endif %}
+
+            
+            
+
+    <script>
+        function createQuiz(courseDetails, classDetails, lessonDetails){
+            document.getElementById('quizTemplate').innerHTML = 
+            `  
+             <table>
+                <tr>
+                    <th> 
+                        Creating quiz for: <br>
+                        CourseId->${courseDetails},
+                        ClassId->${classDetails},
+                        LessonId->${lessonDetails}
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <form action="/trainer/quizzes/${courseDetails}-${classDetails}-${lessonDetails}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        Question: <input type="text" name="qn1" placeholder="your question here...">
+                        <br>
+                        Answer Type:
+                        <input type="radio" name="ansType" value="trueFalse" onclick="displayTFField()">
+                        <label for="trueFalse">T/F</label>
+                        <input type="radio" name="ansType" value="mcq" onclick="displayMCQField()">
+                        <label for="mcq">MCQ</label>
+                        <br>
+                        <div id="answerType"></div>
+                        <br>
+                        Graded:
+                        <select name="graded">
+                        <option value=True>True</option>
+                        <option value="false">False</option>
+                        </select>
+                        <br>
+                        <input type="submit" name="submit">
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            `
+        }
+
+        function displayTFField(){
+            document.getElementById("answerType").innerHTML = 
+            `
+            <select name="trueFalseAnswer">
+            <option value="true">True</option>
+            <option value="false">False</option>
+            </select>
+            `
+        }
+
+        function displayMCQField(){
+            document.getElementById("answerType").innerHTML = 
+            `
+            Option1: <input type="text" name="option1"> <br>
+            Option2: <input type="text" name="option2"> <br>
+            Option3: <input type="text" name="option3"> <br>
+            Option4: <input type="text" name="option4"> <br>
+            `
+        }
+
+        
+    </script>
 {% endblock %}
