@@ -51,7 +51,13 @@
     {% for i in courses %}
     <tr>
         <td>{{i.displayCourseId()}}</td>
-        <td>{{i.displayCourseName()}}</td>
+        <td>
+            {{i.displayCourseName()}}
+            <br>
+            {% if i.displayCourseId() in learner[0].getCoursesTaken() %}
+                <span class="badge bg-success">Completed</span>
+            {% endif %}
+        </td>
         <td>
             {% if i.getPrerequisite() == None %}
             No Prerequisites
