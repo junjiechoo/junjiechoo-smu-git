@@ -18,14 +18,15 @@
 <hr class="no-margins">
 <div class="d-flex" id="wrapper">
 
-    {% if lessons %}
+    {% if lesson_content %}
     <!-- Sidebar-->
     <div class="bg-white" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
-            {% for lesson in lessons %}
+            {% for content in lesson_content %}
+            {% set lesson = content["lesson"] %}
             <button class="tablinks list-group-item list-group-item-action list-group-item-light p-3"
-                onclick="loadLessonContent(event, '{{lesson[0].getLessonId()}}')">Lesson
-                {{lesson[0].getLessonNo()}}</button>
+                onclick="loadLessonContent(event, '{{lesson.getLessonId()}}')">Lesson
+                {{lesson.getLessonId()}}</button>
             {% endfor %}
         </div>
     </div>
@@ -33,12 +34,16 @@
     <div id="page-content-wrapper">
         <!-- Page content-->
         <div class="container-fluid row">
-            {% for lesson in lessons %}
-            <div id="{{lesson[0].getLessonId()}}" class="tabcontent">
-                <h4 class="pt-3 pb-3">{{lesson[0].getLessonTitle()}}</h4>
+            {% for content in lesson_content %}
+            {% set lesson = content["lesson"] %}
+            {% set material = content["material"] %}
+            {% set quiz = content["quiz"] %}
+            {% set score = content["score"] %}
+            <div id="{{lesson.getLessonId()}}" class="tabcontent">
+                <h4 class="pt-3 pb-3">{{lesson.getLessonTitle()}}</h4>
                 <div class="row" style="flex-wrap: unset;">
                     <div class="col" style="width: max-content;">
-                        {% if lesson[0].materialIdList %}
+                        {% if lesson.materialIdList %}
                         <div class="accordion">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="documentspanel-headingone">
@@ -52,15 +57,11 @@
                                     aria-labelledby="documentspanel-headingone">
                                     <div class="accordion-body">
                                         {% for m in material %}
-                                        {% for materialId in lesson[0].materialIdList %}
-                                        {% if m.getMaterialId() == materialId %}
-                                        {% if (m.getMaterialbyId(materialId)).getMaterialType() == "document" %}
+                                        {% if m.getMaterialType() == "document" %}
                                         <a href="#"
-                                            onclick="renderdocuments('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
+                                            onclick="renderdocuments('{{m.getFileLink() }}')">{{m.getMaterialName()}}</a>
                                         <br />
                                         {% endif %}
-                                        {% endif %}
-                                        {% endfor %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -76,15 +77,11 @@
                                     aria-labelledby="videospanel-headingtwo">
                                     <div class="accordion-body">
                                         {% for m in material %}
-                                        {% for materialId in lesson[0].materialIdList %}
-                                        {% if m.getMaterialId() == materialId %}
-                                        {% if (m.getMaterialbyId(materialId)).getMaterialType() == "video" %}
+                                        {% if m.getMaterialType() == "video" %}
                                         <a href="#"
-                                            onclick="rendervideos('{{ (m.getMaterialbyId(materialId)).getFileLink() }}')">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
+                                            onclick="rendervideos('{{ m.getFileLink() }}')">{{m.getMaterialName()}}</a>
                                         <br />
                                         {% endif %}
-                                        {% endif %}
-                                        {% endfor %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -101,15 +98,11 @@
                                     aria-labelledby="hyperlinkspanel-headingthree">
                                     <div class="accordion-body">
                                         {% for m in material %}
-                                        {% for materialId in lesson[0].materialIdList %}
-                                        {% if m.getMaterialId() == materialId %}
-                                        {% if (m.getMaterialbyId(materialId)).getMaterialType() == "hyperlink" %}
-                                        <a href="{{(m.getMaterialbyId(materialId)).getFileLink()}}" target="_blank"
-                                            rel="noopener noreferrer">{{(m.getMaterialbyId(materialId)).getMaterialName()}}</a>
+                                        {% if m.getMaterialType() == "hyperlink" %}
+                                        <a href="{{m.getFileLink()}}" target="_blank"
+                                            rel="noopener noreferrer">{{m.getMaterialName()}}</a>
                                         <br />
                                         {% endif %}
-                                        {% endif %}
-                                        {% endfor %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -124,7 +117,6 @@
                                 <div id="quizpanel" class="accordion-collapse collapse show"
                                     aria-labelledby="quizpanel-headingthree">
                                     <div class="accordion-body">
-                                        {% set quiz = lesson[1] %}
                                         <a href="#" onclick="renderQuiz()">{{quiz.getQuizName()}}</a>
                                         <br />
                                     </div>

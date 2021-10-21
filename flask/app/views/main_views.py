@@ -102,13 +102,24 @@ def applicationInfo(userInfo):
 @main_blueprint.route('/learner/courses/lesson')
 def lesson_page():
     courseId = "IS111";
-    course = Course.query.filter_by(courseId = courseId);
-    learner = Learner.query.all()
-    # lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
-    # enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
-    lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
-    material = Material.query.all();
-    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
+    learnerId = "L003"
+    course = Course.query.filter_by(courseId = courseId)
+    lesson_content = []
+    # lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
+    lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo)
+    for lesson in lessons:
+        quiz = Quiz.query.filter_by(quizId = lesson.quizId).first()
+        score = Score.query.filter_by(scoreId = quiz.quizId, learnerId = learnerId)
+        material = Material.query.filter_by(lessonId = lesson.lessonId).all()
+        content = {
+            "lesson": lesson,
+            "material": material,
+            "quiz": quiz,
+            "score": score if score else None,
+        }
+        lesson_content.append(content)
+    # return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
+    return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lesson_content = lesson_content)
 
 
 # IGNORE ALL BELOW FIRST
