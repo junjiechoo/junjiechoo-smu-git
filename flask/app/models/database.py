@@ -287,3 +287,21 @@ class Score(db.Model):
 
     Learner = relationship('Learner')
     Quiz = relationship('Quiz')
+
+    def __init__(self, scoreId, quizId, learnerId, score):
+        self.scoreId = scoreId
+        self.quizId = quizId
+        self.learnerId = learnerId
+        self.score = score
+
+    def getScoreId(self):
+        return self.scoreId
+    
+    def getQuizId(self):
+        return self.quizId
+
+    def getLearnerId(self):
+        return self.learnerId
+
+    def getScore(self):
+        return self.score
