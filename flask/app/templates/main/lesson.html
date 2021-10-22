@@ -120,9 +120,11 @@
                                 <div id="quizpanel" class="accordion-collapse collapse show"
                                     aria-labelledby="quizpanel-headingthree">
                                     <div class="accordion-body">
+                                        {% if ( quiz and score ) %}
                                         <a href="#"
                                             onclick="renderQuiz('{{ quiz.getQuizName() }}', '{{ quiz.getQuizContent() }}', '{{ score.getScorePerc() }}' ,'{{ score.getScorePerc() }}')">{{quiz.getQuizName()}}</a>
                                         <br />
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
