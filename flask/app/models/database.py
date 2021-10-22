@@ -262,11 +262,17 @@ class Quiz(db.Model):
     quizId = Column(String(16), primary_key=True)
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
+    classId = Column(ForeignKey('Class.classId'), nullable=False)
+    quizContent = Column(ARRAY(JSONB(astext_type=Text())))
 
-    def __init__(self, quizId, quizName, graded):
+    Class = relationship('Class', primaryjoin='Quiz.classId == Class.classId', backref='quizzes')
+
+    def __init__(self, quizId, quizName, graded, classId, quizContent):
         self.quizId = quizId
         self.quizName = quizName
         self.graded = graded
+        self.classId = classId
+        self.quizContent = quizContent
 
     def getQuizId(self):
         return self.quizId
@@ -277,22 +283,30 @@ class Quiz(db.Model):
     def getGraded(self):
         return self.graded
 
+    def classId(self):
+        return self.classId
+
+    def quizContent(self):
+        return self.quizContent
+
 class Score(db.Model):
     __tablename__ = 'Score'
 
     scoreId = db.Column(String(8), primary_key=True)
     quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
-    score = db.Column(INT4RANGE, nullable=False)
+    completedStatus = Column(Boolean, nullable=False)
+    scorePerc = db.Column(Integer, nullable=False)
 
-    Learner = relationship('Learner')
-    Quiz = relationship('Quiz')
+    Learner = relationship('Learner', primaryjoin='Score.learnerId == Learner.learnerId', backref='scores')
+    Quiz = relationship('Quiz', primaryjoin='Score.quizId == Quiz.quizId', backref='scores')
 
-    def __init__(self, scoreId, quizId, learnerId, score):
+    def __init__(self, scoreId, quizId, learnerId, completedStatus, scorePerc):
         self.scoreId = scoreId
         self.quizId = quizId
         self.learnerId = learnerId
-        self.score = score
+        self.completedStatus = completedStatus
+        self.scorePerc = scorePerc
 
     def getScoreId(self):
         return self.scoreId
@@ -303,5 +317,8 @@ class Score(db.Model):
     def getLearnerId(self):
         return self.learnerId
 
-    def getScore(self):
-        return self.score
+    def getCompletedStatus(self):
+        return self.completedStatus
+
+    def getScorePerc(self):
+        return self.scorePerc
