@@ -41,10 +41,35 @@ def enrolment_page():
 def courses_page():
     courses = Course.query.all()
     learner = Learner.query.filter_by(learnerId='L003')
-    return render_template('main/learner.html', courses=courses, learner=learner, enteredCourses=True)
+    trainer = Trainer.query.all()
+    enrolment = Enrolment.query.filter_by(learnerId='L003')
+    return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
+# for HR to assign trainer and learners to a course
+@main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
+def course_id(id):
+    learner = request.form.get('learner')
+    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
+    learner_to_update = Learner.query.get(learner_to_update.learnerId)
 
-@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET']) # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+
+    print(learner_to_update.enrolledCourses)
+    print(learner_to_update.enrolledCourses.append(id))
+    # learner_to_update.enrolledCourses = data
+    trainer_to_update.coursesAssigned.append(id)
+    print(learner_to_update.enrolledCourses)
+
+    db.session.commit()
+    
+
+    return render_template('main/learner.html',  learner=learner, trainer=trainer,)
+
+# to enrol into a course
+# can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     # userInfo = json.loads(userInfo)
     userInfo = userInfo
@@ -86,5 +111,5 @@ def user_profile_page():
 
 # @main_blueprint.route('/layout')
 
-# def layout():
+# def layout():asdasd
 #     return render_template('layout.html')
