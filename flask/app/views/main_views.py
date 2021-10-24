@@ -72,6 +72,18 @@ def course_id(id):
 
     return render_template('main/learner.html')
 
+@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
+def coursewithdraw_id(id):
+    trainer = request.form.get('trainer')
+    print(trainer)
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+    trainer_to_update.coursesAssigned.remove(id)
+    db.session.commit()
+
+    return render_template('main/withdrawl_page.html', trainer=trainer, courseid = id)
+
+
 # to enrol into a course
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
