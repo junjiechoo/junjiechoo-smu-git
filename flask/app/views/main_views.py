@@ -99,15 +99,6 @@ def applicationInfo(userInfo):
     # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
-    
-@main_blueprint.route('/learner/courses/lesson')
-def lesson_page():
-    courseId = "IS111";
-    course = Course.query.filter_by(courseId = courseId);
-    learner = Learner.query.all()
-    lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
-    material = Material.query.all();
-    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
 
 @main_blueprint.route('/trainer')
 def trainer_page():
@@ -185,7 +176,27 @@ def create_quiz(quizInfo):
     print("------------------------------")
     return "quiz created"
 
-
+@main_blueprint.route('/learner/courses/lesson')
+def lesson_page():
+    courseId = "IS111"
+    learnerId = "L003"
+    course = Course.query.filter_by(courseId=courseId)
+    lesson_content = []
+    lessons = Lesson.query.filter_by(
+        courseId=courseId).order_by(Lesson.lessonNo)
+    for lesson in lessons:
+        quiz = Quiz.query.filter_by(quizId=lesson.quizId).first()
+        score = Score.query.filter_by(
+            quizId=quiz.quizId, learnerId=learnerId).first()
+        material = Material.query.filter_by(lessonId=lesson.lessonId).all()
+        content = {
+            "lesson": lesson,
+            "material": material,
+            "quiz": quiz,
+            "score": score if score else None,
+        }
+        lesson_content.append(content)
+    return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 
 
 

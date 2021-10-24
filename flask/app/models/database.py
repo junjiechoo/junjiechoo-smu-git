@@ -299,7 +299,30 @@ class Score(db.Model):
     scoreId = db.Column(String(8), primary_key=True)
     quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
-    score = db.Column(INT4RANGE, nullable=False)
+    completedStatus = Column(Boolean, nullable=False)
+    scorePerc = db.Column(Integer, nullable=False)
 
     Learner = relationship('Learner')
     Quiz = relationship('Quiz')
+
+    def __init__(self, scoreId, quizId, learnerId, completedStatus, scorePerc):
+        self.scoreId = scoreId
+        self.quizId = quizId
+        self.learnerId = learnerId
+        self.completedStatus = completedStatus
+        self.scorePerc = scorePerc
+
+    def getScoreId(self):
+        return self.scoreId
+    
+    def getQuizId(self):
+        return self.quizId
+
+    def getLearnerId(self):
+        return self.learnerId
+
+    def getCompletedStatus(self):
+        return self.completedStatus
+
+    def getScorePerc(self):
+        return self.scorePerc
