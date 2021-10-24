@@ -105,8 +105,6 @@ def lesson_page():
     courseId = "IS111";
     course = Course.query.filter_by(courseId = courseId);
     learner = Learner.query.all()
-    # lessons = Lesson.query.filter_by(courseId = courseId).order_by(Lesson.lessonNo).all();
-    # enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
     lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
     material = Material.query.all();
     return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
@@ -118,27 +116,53 @@ def trainer_page():
 
 @main_blueprint.route('/trainer/quizzes')
 def quiz_page():
+    lessonsWithoutQuiz = {}
     assignedClasses = Class.query.filter_by(trainerId = 'T001')
-    return render_template('main/admin_page.html', assignedClasses=assignedClasses, enteredCreateQuiz = True)
+    for classId in assignedClasses:
+        if classId.lessonIdList != None:
+            for lessonIdQuery in classId.lessonIdList:
+                lessonIdQuery = lessonIdQuery[1:-1]
+                lessonDetails = Lesson.query.filter_by(lessonId = lessonIdQuery)
+                for lesson in lessonDetails:
+                    if lesson.quizId != None:
+                        lessonsWithoutQuiz[lesson.lessonId] = classId.classId
+    return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz = True)
 
 @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
 def create_quiz(quizInfo):
-    quizContent = {}
     print("------------------------------")
     # for key, value in request.form.items():
-    quizContent['question'] = request.form['qn1']
-    quizContent['questionNo'] = 'qn1'
-    answerType = request.form['ansType']
-    quizContent['answerType'] = answerType
-    if answerType == "trueFalse":
-        quizContent['answer'] = request.form['trueFalseAnswer']
+    #     print("key:", key, " value:", value)
+    # print(request.form)
+    newQuizId = ""
+    newQuizName = ""
+    quizContent = []
+    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+        formattedQnContent = {}
+
+        formattedQnContent['qnNum'] = f"qn{qnNum}"
+        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+
+        if request.form[f"ansType{qnNum}"] == "trueFalse":
+            formattedQnContent['answerType'] = "trueFalse"
+            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+        else:
+            formattedQnContent['answerType'] = "mcq"
+            options = []
+            for optionNum in range(1,5):
+                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+            formattedQnContent['answer'] = options
+        
+        quizContent.append(formattedQnContent)
+    
+    print(quizContent)
+
     if request.form['graded'] == 'true':
         graded = True
     else:
         graded = False
-    
+
     last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
-    print(last_quizId)
     if last_quizId == None:
         last_quizId = 'Q001'
     else:
@@ -147,11 +171,17 @@ def create_quiz(quizInfo):
         quiz_number = int(last_quizId[1:])
         quiz_number += 1
         newQuizId = quizId_alphabet + str(quiz_number)
-        newquizName = "Quiz " + str(quiz_number)
-    
-    db.session.add(Quiz(newQuizId, newquizName, graded, quizContent))
-    db.session.commit()
+        newQuizName = "Quiz " + str(quiz_number)
 
+    classId = request.form['classDetails']
+
+    # quizContent = json.dumps(quizContent)
+    print(quizContent)
+
+    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+    db.session.add(newQuiz)
+    db.session.commit()
+   
     print("------------------------------")
     return "quiz created"
 

@@ -4,6 +4,7 @@ from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integ
 from sqlalchemy.dialects.postgresql import INT4RANGE, TIME
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql.expression import column
 from sqlalchemy.sql.sqltypes import JSON
 from app import db
 
@@ -186,7 +187,8 @@ class Lesson(db.Model):
     courseId = Column(ForeignKey('Course.courseId'), nullable=False)
     prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
     materialIdList = Column(ARRAY(String(144)))
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
+    quizId = Column(ForeignKey('Quiz.quizId'), nullable=True)
+    
 
     Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
     parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
@@ -264,13 +266,17 @@ class Quiz(db.Model):
     quizId = Column(String(16), primary_key=True)
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
-    quizContent = Column(JSON, nullable=True)
+    classId = Column(String(144), nullable=False)
+    quizContent = Column(ARRAY(JSON), nullable=True)
+    
 
-    def __init__(self, quizId, quizName, graded, quizContent):
+    def __init__(self, quizId, quizName, graded, classId, quizContent):
         self.quizId = quizId
         self.quizName = quizName
         self.graded = graded
+        self.classId = classId
         self.quizContent = quizContent
+        
 
     def getQuizId(self):
         return self.quizId
@@ -283,6 +289,9 @@ class Quiz(db.Model):
     
     def getQuizContent(self):
         return self.quizContent
+    
+    def getClassId(self):
+        return self.classId
 
 class Score(db.Model):
     __tablename__ = 'Score'

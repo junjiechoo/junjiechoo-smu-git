@@ -17,8 +17,8 @@ the_app = create_app(dict(
     LOGIN_DISABLED=False,  # Enable @register_required
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
     SERVER_NAME='localhost',  # Enable url_for() without request context
-    # In-memory SQLite DB
-    SQLALCHEMY_DATABASE_URI='postgresql://postgres:lavender@localhost:5432/postgres',
+    # Testing Postgresql database
+    SQLALCHEMY_DATABASE_URI='postgresql://postgres:Godfather1?@localhost:5432/postgres',
     WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
 ))
 
@@ -52,12 +52,8 @@ def session(db, request):
 
     db.session = session
 
-    lesson1 = Lesson("l1", "1", "is111 lesson 1", "")
-    quiz1 = Quiz("q1", "l1", "is111 quiz 1", True)
-    db.session.add(quiz1)
-    db.session.commit()
-
     def teardown():
+        # db.drop_all()
         transaction.rollback()
         connection.close()
         session.remove()
@@ -69,5 +65,3 @@ def session(db, request):
 @pytest.fixture(scope='session')
 def client(app):
     return app.test_client()
-
-
