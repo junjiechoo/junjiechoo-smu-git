@@ -1,11 +1,132 @@
 {% extends "layout.html" %}
 
+
 {% block content %}
-    <h2>{%trans%}Admin Page{%endtrans%}</h2>
-    <p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
-    <p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
-    <p><a href={{ url_for('main.home_page') }}>{%trans%}Home Page{%endtrans%}</a> (accessible to anyone)</p>
-    <p><a href={{ url_for('main.learner_page') }}>{%trans%}Member Page{%endtrans%}</a> (login_required: member@example.com / Password1)</p>
-    <p><a href={{ url_for('main.admin_page') }}>{%trans%}Admin Page{%endtrans%}</a> (roles_required: admin@example.com / Password1)</p>
-    <p><a href={{ url_for('user.logout') }}>{%trans%}Sign out{%endtrans%}</a></p>
+<!-- what is the diff between className and courseName -->
+    {% if enteredCreateQuiz %}
+        {% if assignedClasses.count() > 0 %}
+            <table>
+                <tr>
+                    <th>CourseId</th>
+                    <th>ClassId</th>
+                    <th>Current Available Seats</th>
+                    <th>Quizzes</th>
+                </tr>
+                {% for class in assignedClasses%}
+                    <tr>
+                        <td>{{class.courseId}}</td>
+                        <td>{{class.classId}}</td>
+                        <td>{{class.numAvailableSeats}}</td>
+
+                        {% if class.lessonIdList == None %}
+                            <td>to add quizzes, you need to have at least one lesson for this class</td>
+                        {% else %}
+                        <!-- add logic to check if a quiz has been created for the lesson -->
+                            <td>
+                                {% for lesson in class.lessonIdList %}
+                                    {% if lesson[1:-1] in lessonsWithoutQuiz %}
+                                        you have a quiz for this lesson {{lesson[1:-1]}} <br>
+                                    {% else %}
+                                    {{lesson[1:-1]}}
+                                    <button onclick="createQuiz('{{class.courseId}}', '{{class.classId}}', {{lesson}})">Create Quiz</button>
+                                    <br>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endif %}
+                        
+                    </tr>
+                {% endfor %}
+            </table>
+            <br><br>
+            <div id="quizTemplate"></div>
+        {% else %}
+            <h2>you have not been assigned to any class</h2>
+        {% endif %}
+    {% endif %}
+
+    <script>
+        var questionNumber = 1;
+        function createQuiz(courseDetails, classDetails, lessonDetails){
+            document.getElementById('quizTemplate').innerHTML = 
+            `  
+             <table>
+                <tr>
+                    <th> 
+                        Creating quiz for: <br>
+                        CourseId->${courseDetails},
+                        ClassId->${classDetails},
+                        LessonId->${lessonDetails}
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <form action="/trainer/quizzes/${courseDetails}-${classDetails}-${lessonDetails}" method="POST" id="form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <input type="hidden" name="totalNumQuestions" value="1">
+                        <input type="hidden" name="classDetails" value="${classDetails}">
+                        Question${questionNumber}: <input type="text" name="qn${questionNumber}" placeholder="your question here...">
+                        <br>
+                        Answer Type:
+                        <input type="radio" name="ansType${questionNumber}" value="trueFalse" onclick="displayTFField(${questionNumber})">
+                        <label for="trueFalse">T/F</label>
+                        <input type="radio" name="ansType${questionNumber}" value="mcq" onclick="displayMCQField(${questionNumber})">
+                        <label for="mcq">MCQ</label>
+                        <br><br>
+                        <div id="answerOutput${questionNumber}"></div>
+                        <div id="newQuestionPosition"></div>
+                        <br>
+                        Graded:
+                        <select name="graded">
+                        <option value=true>True</option>
+                        <option value=false>False</option>
+                        </select> <br><br>
+                        <input type="submit" name="submit">
+                        </form>
+                        <button onclick="newQuestion()" style="float: right;">Add Question</button>
+                    </td>
+                </tr>
+            </table>
+            `
+        }
+
+        function displayTFField(tfQuestionNumber){
+            document.getElementById(`answerOutput${tfQuestionNumber}`).innerHTML = 
+            `
+            <select name="tfAns${tfQuestionNumber}">
+            <option value="true">True</option>
+            <option value="false">False</option>
+            </select>
+            `
+            
+        }
+
+        function displayMCQField(mcqQuestionNumber){
+            document.getElementById(`answerOutput${mcqQuestionNumber}`).innerHTML = 
+            `
+            Option1: <input type="text" name="qn${mcqQuestionNumber}_option1"> <br>
+            Option2: <input type="text" name="qn${mcqQuestionNumber}_option2"> <br>
+            Option3: <input type="text" name="qn${mcqQuestionNumber}_option3"> <br>
+            Option4: <input type="text" name="qn${mcqQuestionNumber}_option4"> <br>
+            `
+        }
+
+        function newQuestion(){
+            questionNumber += 1;
+            document.getElementById("newQuestionPosition").innerHTML += 
+            `Question${questionNumber}: <input type="text" name="qn${questionNumber}" placeholder="your question here...">
+            <br>
+            Answer Type:
+            <input type="radio" name="ansType${questionNumber}" value="trueFalse" onclick="displayTFField(${questionNumber})">
+            <label for="trueFalse">T/F</label>
+            <input type="radio" name="ansType${questionNumber}" value="mcq" onclick="displayMCQField(${questionNumber})">
+            <label for="mcq">MCQ</label>
+            <br>
+            <div id="answerOutput${questionNumber}"></div>
+            <br>`;
+
+            document.getElementsByName("totalNumQuestions")[0].setAttribute("value", questionNumber);
+            
+        }
+    </script>
 {% endblock %}

@@ -25,17 +25,16 @@ def home_page():
     employeeList = Learner.query.all()
     return render_template('main/home_page.html', content=employeeList)
 
-
 @main_blueprint.route('/learner')
 def learner_page():
+    #hello-wor
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner)
 
 
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
-    enrolments = db.session.query(Enrolment, Course).join(
-        Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L003')
+    enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
@@ -49,8 +48,6 @@ def courses_page():
     return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
 # for HR to assign trainer and learners to a course
-
-
 @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
     learner = request.form.get('learner')
@@ -65,13 +62,12 @@ def course_id(id):
     learner_to_update.enrolledCourses.append(id)
     trainer_to_update.coursesAssigned.append(id)
     db.session.commit()
+    
 
     return render_template('main/learner.html')
 
 # to enrol into a course
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
-
-
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
@@ -103,29 +99,95 @@ def applicationInfo(userInfo):
     # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
-
-
+    
 @main_blueprint.route('/learner/courses/lesson')
 def lesson_page():
-    courseId = "IS111"
-    learnerId = "L003"
-    course = Course.query.filter_by(courseId=courseId)
-    lesson_content = []
-    lessons = Lesson.query.filter_by(
-        courseId=courseId).order_by(Lesson.lessonNo)
-    for lesson in lessons:
-        quiz = Quiz.query.filter_by(quizId=lesson.quizId).first()
-        score = Score.query.filter_by(
-            quizId=quiz.quizId, learnerId=learnerId).first()
-        material = Material.query.filter_by(lessonId=lesson.lessonId).all()
-        content = {
-            "lesson": lesson,
-            "material": material,
-            "quiz": quiz,
-            "score": score if score else None,
-        }
-        lesson_content.append(content)
-    return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
+    courseId = "IS111";
+    course = Course.query.filter_by(courseId = courseId);
+    learner = Learner.query.all()
+    lessons = db.session.query(Lesson, Quiz).join(Quiz, Quiz.quizId == Lesson.quizId).filter(Lesson.courseId == courseId).order_by(Lesson.lessonNo).all();
+    material = Material.query.all();
+    return render_template('main/lesson.html', course=course, learner=learner, enteredCourses=True, courseId=courseId, lessons=lessons, material=material)
+
+@main_blueprint.route('/trainer')
+def trainer_page():
+    trainer = Trainer.query.filter_by(trainerId = 'T001')
+    return render_template('main/admin_page.html', trainer=trainer)
+
+@main_blueprint.route('/trainer/quizzes')
+def quiz_page():
+    lessonsWithoutQuiz = {}
+    assignedClasses = Class.query.filter_by(trainerId = 'T001')
+    for classId in assignedClasses:
+        if classId.lessonIdList != None:
+            for lessonIdQuery in classId.lessonIdList:
+                lessonIdQuery = lessonIdQuery[1:-1]
+                lessonDetails = Lesson.query.filter_by(lessonId = lessonIdQuery)
+                for lesson in lessonDetails:
+                    if lesson.quizId != None:
+                        lessonsWithoutQuiz[lesson.lessonId] = classId.classId
+    return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz = True)
+
+@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
+def create_quiz(quizInfo):
+    print("------------------------------")
+    # for key, value in request.form.items():
+    #     print("key:", key, " value:", value)
+    # print(request.form)
+    newQuizId = ""
+    newQuizName = ""
+    quizContent = []
+    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+        formattedQnContent = {}
+
+        formattedQnContent['qnNum'] = f"qn{qnNum}"
+        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+
+        if request.form[f"ansType{qnNum}"] == "trueFalse":
+            formattedQnContent['answerType'] = "trueFalse"
+            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+        else:
+            formattedQnContent['answerType'] = "mcq"
+            options = []
+            for optionNum in range(1,5):
+                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+            formattedQnContent['answer'] = options
+        
+        quizContent.append(formattedQnContent)
+    
+    print(quizContent)
+
+    if request.form['graded'] == 'true':
+        graded = True
+    else:
+        graded = False
+
+    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+    if last_quizId == None:
+        last_quizId = 'Q001'
+    else:
+        last_quizId = last_quizId.quizId
+        quizId_alphabet = last_quizId[0]
+        quiz_number = int(last_quizId[1:])
+        quiz_number += 1
+        newQuizId = quizId_alphabet + str(quiz_number)
+        newQuizName = "Quiz " + str(quiz_number)
+
+    classId = request.form['classDetails']
+
+    # quizContent = json.dumps(quizContent)
+    print(quizContent)
+
+    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+    db.session.add(newQuiz)
+    db.session.commit()
+   
+    print("------------------------------")
+    return "quiz created"
+
+
+
+
 
 
 # IGNORE ALL BELOW FIRST
@@ -156,3 +218,4 @@ def user_profile_page():
     # Process GET or invalid POST
     return render_template('main/user_profile_page.html',
                            form=form)
+

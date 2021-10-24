@@ -1,25 +1,12 @@
 # coding: utf-8
 from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, MetaData, String, Time
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql.ranges import INT4RANGE
-from sqlalchemy.schema import FetchedValue
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 metadata = Base.metadata
-
-
-
-class Answer(Base):
-    __tablename__ = 'Answers'
-
-    answerId = Column(String(144), primary_key=True)
-    questionId = Column(ForeignKey('Questions.questionId'), nullable=False)
-    isCorrect = Column(Boolean, nullable=False)
-    answerName = Column(String(144), nullable=False)
-
-    Question = relationship('Question', primaryjoin='Answer.questionId == Question.questionId', backref='answers')
 
 
 
@@ -114,10 +101,10 @@ class Lesson(Base):
     lessonId = Column(String(144), primary_key=True)
     lessonNo = Column(Integer, nullable=False)
     lessonTitle = Column(String(144), nullable=False)
+    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
     prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
     materialIdList = Column(ARRAY(VARCHAR()))
     quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
 
     Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
     parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
@@ -162,40 +149,22 @@ class MaterialAcces(Base):
 
 
 
-class Question(Base):
-    __tablename__ = 'Questions'
-
-    questionId = Column(String(144), primary_key=True, server_default=FetchedValue())
-    type = Column(String(144), nullable=False)
-    questionName = Column(String(144), nullable=False)
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    questionNo = Column(Integer, nullable=False)
-
-    Quiz = relationship('Quiz', primaryjoin='Question.quizId == Quiz.quizId', backref='questions')
-
-
-
 class Quiz(Base):
     __tablename__ = 'Quiz'
 
     quizId = Column(String(16), primary_key=True)
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
-    classId = Column(ForeignKey('Class.classId'), nullable=False)
-    quizContent = Column(ARRAY(JSONB(astext_type=Text())))
-
-    Clas = relationship('Clas', primaryjoin='Quiz.classId == Clas.classId', backref='quizzes')
 
 
 
 class Score(Base):
     __tablename__ = 'Score'
 
-    scoreId = Column(String(8), primary_key=True, server_default=FetchedValue())
+    scoreId = Column(String(8), primary_key=True)
     quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
     learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
-    completedStatus = Column(Boolean, nullable=False)
-    scorePerc = Column(Integer, nullable=False)
+    score = Column(INT4RANGE, nullable=False)
 
     Learner = relationship('Learner', primaryjoin='Score.learnerId == Learner.learnerId', backref='scores')
     Quiz = relationship('Quiz', primaryjoin='Score.quizId == Quiz.quizId', backref='scores')
