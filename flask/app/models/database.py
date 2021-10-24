@@ -1,12 +1,13 @@
 # coding: utf-8
-from flask import json
-from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String
-from sqlalchemy.dialects.postgresql import INT4RANGE, TIME
+from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String, Text
+from sqlalchemy.dialects.postgresql import INT4RANGE, TIME, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import column
 from sqlalchemy.sql.sqltypes import JSON
+from sqlalchemy.schema import FetchedValue
 from app import db
+import json
 
 
 class Course(db.Model):
@@ -25,6 +26,9 @@ class Course(db.Model):
 
     def getPrerequisite(self):
         return self.prereq
+
+    def getRetireStatus(self):
+        return self.retireStatus
 
 
 class Employee(db.Model):
@@ -54,6 +58,7 @@ class HumanResource(Employee):
     def getHrName(self):
         return self.HRName
 
+
 class Learner(Employee):
     __tablename__ = 'Learner'
 
@@ -75,6 +80,7 @@ class Learner(Employee):
     def getCoursesTaken(self):
         return self.coursesTaken
 
+
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
 
@@ -84,7 +90,7 @@ class Trainer(db.Model):
 
     def getTrainerId(self):
         return self.trainerId
-    
+
     def getTrainerName(self):
         return self.trainerName
 
@@ -133,6 +139,7 @@ class Enrolment(db.Model):
     numLessonCompleted = db.Column(Integer)
     classId = db.Column(String(8), nullable=False)
 
+    # Class = relationship('Class')
     Course = relationship('Course')
     Learner = relationship('Learner')
 
@@ -171,28 +178,21 @@ class Enrolment(db.Model):
                 completed_courses.append(record.courseId)
         return completed_courses
 
-    # def getApprovalStatus(self, enrolmentId):
-    #     enrolment_record = Enrolment.query.filter_by(
-    #         enrolmentId=enrolmentId).first()
-    #     print(enrolment_record)
-    #     return enrolment_record.approvalStatus
-
 
 class Lesson(db.Model):
     __tablename__ = 'Lesson'
 
-    lessonId = Column(String(144), primary_key=True)
-    lessonNo = Column(Integer, nullable=False)
-    lessonTitle = Column(String(144), nullable=False)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
-    prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
-    materialIdList = Column(ARRAY(String(144)))
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=True)
-    
+    lessonId = db.Column(String(144), primary_key=True)
+    lessonNo = db.Column(Integer, nullable=False)
+    lessonTitle = db.Column(String(144), nullable=False)
+    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
+    prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
+    materialIdList = db.Column(ARRAY(String(144)))
+    quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
 
-    Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
-    parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
-    Quiz = relationship('Quiz', primaryjoin='Lesson.quizId == Quiz.quizId', backref='lessons')
+    Course = relationship('Course')
+    parent = relationship('Lesson')
+    Quiz = relationship('Quiz')
 
     def __init__(self, lessonId, lessonNo, lessonTitle, courseId, prereqLessonId, materialIdList, quizId):
         self.lessonId = lessonId
@@ -218,12 +218,14 @@ class Lesson(db.Model):
     def getMaterialIdList(self):
         return self.materialIdList
 
+
 class LessonStatus(db.Model):
     __tablename__ = 'LessonStatus'
 
     learnerId = db.Column(String(8), primary_key=True)
     lessonId = db.Column(String(144), primary_key=True)
     completionStatus = db.Column(Boolean, nullable=False)
+
 
 class Material(db.Model):
     __tablename__ = 'Material'
@@ -249,7 +251,8 @@ class Material(db.Model):
         return self.fileLink
 
     def getMaterialbyId(self, materialId):
-        material_record = Material.query.filter_by(materialId=materialId).first()
+        material_record = Material.query.filter_by(
+            materialId=materialId).first()
         return material_record
 
 
@@ -260,6 +263,7 @@ class MaterialAccess(db.Model):
     materialId = db.Column(String(144), primary_key=True)
     accessStatus = db.Column(Boolean, nullable=False)
 
+
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
     
@@ -267,7 +271,7 @@ class Quiz(db.Model):
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
     classId = Column(String(144), nullable=False)
-    quizContent = Column(ARRAY(JSON), nullable=True)
+    quizContent = Column(ARRAY(JSONB), nullable=True)
     
 
     def __init__(self, quizId, quizName, graded, classId, quizContent):
@@ -288,15 +292,17 @@ class Quiz(db.Model):
         return self.graded
     
     def getQuizContent(self):
+        self.quizContent = json.dumps(self.quizContent)
         return self.quizContent
     
     def getClassId(self):
         return self.classId
 
+
 class Score(db.Model):
     __tablename__ = 'Score'
 
-    scoreId = db.Column(String(8), primary_key=True)
+    scoreId = db.Column(String(8), primary_key=True, server_default=FetchedValue())
     quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     completedStatus = Column(Boolean, nullable=False)
@@ -305,8 +311,7 @@ class Score(db.Model):
     Learner = relationship('Learner')
     Quiz = relationship('Quiz')
 
-    def __init__(self, scoreId, quizId, learnerId, completedStatus, scorePerc):
-        self.scoreId = scoreId
+    def __init__(self, quizId, learnerId, completedStatus, scorePerc):
         self.quizId = quizId
         self.learnerId = learnerId
         self.completedStatus = completedStatus
@@ -314,7 +319,6 @@ class Score(db.Model):
 
     def getScoreId(self):
         return self.scoreId
-    
     def getQuizId(self):
         return self.quizId
 

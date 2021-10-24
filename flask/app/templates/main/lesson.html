@@ -14,6 +14,8 @@
 {% endfor %}
 {% endif %}
 
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
 <h3 class="pt-3 pb-3">{{courseId}} - {{course[0].displayCourseName()}}</h3>
 
 <hr class="no-margins">
@@ -162,7 +164,7 @@
                                     <div class="accordion-body">
                                         {% if ( quiz and score ) %}
                                         <a href="#"
-                                            onclick="renderQuiz('{{ quiz.getQuizName() }}', '{{ quiz.getQuizContent() }}', '{{ score.getScorePerc() }}' ,'{{ score.getScorePerc() }}')">{{quiz.getQuizName()}}</a>
+                                            onclick="renderQuiz('{{ quiz.getQuizId() }}', '{{ quiz.getQuizName() }}', '{{ quiz.getQuizContent() }}', '{{ score.getCompletedStatus() }}' ,'{{ score.getScorePerc() }}')">{{quiz.getQuizName()}}</a>
                                         <br />
                                         {% endif %}
                                     </div>
@@ -196,86 +198,6 @@ Lessons are not created yet.
 <script>
     var firsttab = document.getElementsByClassName("tablinks")[0];
     firsttab.id = "defaultOpen";
-
-    var Questions = [
-        // store answer with questions for easier retrieval
-        { category: 'games', question: 'was titanfall 2 released on October 28, 2016', answer: true },
-        { category: 'games', question: 'was battlefield 1 released on October 21, 2016', answer: true },
-        { category: 'games', question: ' was gta 5 released on September 17, 2013', answer: true },
-        // { category: 'games', question: ' was injustice 2 released on July 19 2013', answer: false },
-        // { category: 'games', question: 'was resident evil 7 released on june 15 2015', answer: false },
-        // { category: 'games', question: 'was call of duty ghosts released on November 5, 2013', answer: false },
-        // { category: 'history', question: 'The Iron Age comes after the Bronze Age', answer: true },
-        // { category: 'language', question: 'There are 24 letters in the Greek alphabet', answer: true },
-        // { category: 'language', question: 'There is no German word meaning \'fluffy\'', answer: false },
-        // { category: 'language', question: 'In Welsh a microwave is known as a \'popty ping\'', answer: true },
-        // { category: 'history', question: 'Mexico achieved independence before USA', answer: false },
-        // { category: 'history', question: 'Sir Winston Churchill was a Labour Prime Minister', answer: false },
-    ];
-
-    // when declared over here other functions will see it; it's not best practice to register them in global/window scope, but better than nothing ;)
-    var count = 0;
-    var points = 0;
-    // var category;
-    var question;
-
-    //show answer buttons only after clicking start button
-    function showButtons() {
-        document.getElementById('answerT').style.display = "";
-        document.getElementById('answerF').style.display = "";
-    }
-
-    // choose a category and a question
-    function catAndQuest() {
-        start.style.display = 'none';
-        showButtons();
-
-        document.getElementById('count').innerHTML = 'Question ' + (++count);
-
-        question = Questions[Math.floor(Math.random() * Questions.length)];
-        document.getElementById('quest').innerHTML = question.question;
-    }
-
-    // create a copy of Questions array
-    var copy = [].concat(Questions);
-
-    // delete used question out of the copy array
-    function deleteUsed() {
-        if (Questions.length > 1) {
-            Questions.splice(Questions.indexOf(question), 1);
-        } else {
-            document.getElementById('answerT').style.display = "none";
-            document.getElementById('answerF').style.display = "none";
-            document.getElementById('questions').style.display = "none";
-            document.getElementById('reset').style.display = "";
-
-            var percentage = Math.round(points / count * 100);
-            document.getElementById('points').innerHTML = "Your score: " + percentage + "%";
-            document.getElementById('points').style.display = "";
-            if (percentage > 85) {
-                document.getElementById('winner').style.display = "";
-            }
-            else {
-                document.getElementById('looser').style.display = "";
-            }
-        }
-    }
-
-    //user answered question
-    function answer(value) {
-        console.log(question.question)
-
-        if (value === question.answer) {
-            points++;
-        }
-        deleteUsed();
-        catAndQuest();
-    }
-
-    //restart the game
-    function restart() {
-        document.location.href = "";
-    }
 
     function loadLessonContent(evt, lessonId) {
         var i, tabcontent, tablinks;
@@ -321,20 +243,44 @@ Lessons are not created yet.
         document.getElementById("iframe").innerHTML = '<video width="500" height="600" controls> <source src="' + link + '" type="video/' + filetype + '">';
     }
 
-    function renderQuiz(name, content, completed, score) {
-        console.log(name)
-        console.log(completed)
-        console.log(content)
-        console.log(score)
-        document.getElementById("iframe").innerHTML = `
-            {% if score %}
-            <p>{{ score.getScorePerc() }}</p>
-            {% endif %}
-            <button onclick="catAndQuest()" id="start"> START </button>
+    var currQuizId;
+    var name;
+    var count = 0;
+    var points = 0;
+    var question;
+    var questions;
+    var completed;
+
+    var csrf_token = document.getElementsByName("csrf_token")[0].value
+    console.log(csrf_token)
+
+    function renderQuiz(quizId, name, content, completed, score) {
+        currQuizId = quizId
+        name = name
+        questions = JSON.parse(content)
+        console.log(csrf_token)
+
+        if (completed == 'True') {
+            document.getElementById("iframe").innerHTML = `
+            <div id="score">
+                <p>You have passed the quiz already! Try again?</p>
+                <p>Your latest score: ${score}</p>
+            </div>
+            `
+        } else {
+            document.getElementById("iframe").innerHTML = `
+            <div id="score">
+                <p>You have not yet passed the quiz. Please attempt</p>
+            </div>
+            `
+        }
+
+        document.getElementById("iframe").innerHTML += `
+            <button onclick="showQuestions()" id="start"> START </button>
             <div class="container">
                 <div id="questions">
                     <div id="count"></div>
-                    <div id="quest"> </div>
+                    <div id="quest"></div>
                     <button onclick="answer(true)" style="display:none;" id="answerT"> TRUE</button>
                     <button onclick="answer(false)" style="display:none;" id="answerF"> FALSE</button>
                 </div>
@@ -342,13 +288,100 @@ Lessons are not created yet.
                 <div id="winner" style="display:none;">Congrats, You pass! <br></div>
                 <div id="looser" style="display:none;">Sorry, you failed! Please redo</div>
                 <button onclick="restart()" style="display:none;" id="reset"> Redo? </button>
-                </div>
             </div>
         `;
     }
+    //show answer buttons only after clicking start button
+    function showButtons() {
+        document.getElementById('answerT').style.display = "";
+        document.getElementById('answerF').style.display = "";
+    }
+
+    // choose a category and a question
+    function showQuestions() {
+        score.style.display = 'none';
+        start.style.display = 'none';
+        showButtons();
+
+        document.getElementById('count').innerHTML = 'Question ' + (++count);
+
+        question = questions[Math.floor(Math.random() * questions.length)];
+        document.getElementById('quest').innerHTML = question.question;
+    }
+
+    // create a copy of Questions array
+    var copy = [].concat(questions);
+
+    async function postScore(url = '', data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            // credentials: 'include', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+                "X-CSRF-Token": csrf_token,
+            },
+            // redirect: 'follow', // manual, *follow, error
+            // referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    // delete used question out of the copy array
+    function deleteUsed() {
+        if (questions.length > 1) {
+            questions.splice(questions.indexOf(question), 1);
+        } else {
+            document.getElementById('answerT').style.display = "none";
+            document.getElementById('answerF').style.display = "none";
+            document.getElementById('questions').style.display = "none";
+            document.getElementById('reset').style.display = "";
+
+            var percentage = Math.round(points / count * 100);
+            document.getElementById('points').innerHTML = "Your score: " + percentage + "%";
+            document.getElementById('points').style.display = "";
+            if (percentage > 85) {
+                document.getElementById('winner').style.display = "";
+                completed = true;
+            }
+            else {
+                document.getElementById('looser').style.display = "";
+                completed = false;
+            }
+
+            score = {
+                quizId: currQuizId,
+                learnerId: '{{learnerId}}',
+                completedStatus: completed,
+                scorePerc: percentage
+            }
+
+            postScore('/learner/courses/lesson/score', score)
+                .then(data => {
+                    console.log(data);
+                })
 
 
+        }
+    }
 
+    //user answered question
+    function answer(value) {
+
+        if (value === question.answer) {
+            points++;
+        }
+        deleteUsed();
+        showQuestions();
+    }
+
+    //restart the game
+    function restart() {
+        document.location.href = "";
+    }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

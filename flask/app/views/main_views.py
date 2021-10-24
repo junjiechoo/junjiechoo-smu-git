@@ -25,6 +25,7 @@ def home_page():
     employeeList = Learner.query.all()
     return render_template('main/home_page.html', content=employeeList)
 
+
 @main_blueprint.route('/learner')
 def learner_page():
     #hello-wor
@@ -34,7 +35,8 @@ def learner_page():
 
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
-    enrolments = db.session.query(Enrolment, Course).join(Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId=='L003')
+    enrolments = db.session.query(Enrolment, Course).join(
+        Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L003')
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
@@ -48,6 +50,8 @@ def courses_page():
     return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
 # for HR to assign trainer and learners to a course
+
+
 @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
     learner = request.form.get('learner')
@@ -62,7 +66,6 @@ def course_id(id):
     learner_to_update.enrolledCourses.append(id)
     trainer_to_update.coursesAssigned.append(id)
     db.session.commit()
-    
 
     return render_template('main/learner.html')
 
@@ -80,6 +83,8 @@ def coursewithdraw_id(id):
 
 # to enrol into a course
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+
+
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
@@ -131,62 +136,62 @@ def quiz_page():
                         lessonsWithoutQuiz[lesson.lessonId] = classId.classId
     return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz = True)
 
-@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
-def create_quiz(quizInfo):
-    print("------------------------------")
-    # for key, value in request.form.items():
-    #     print("key:", key, " value:", value)
-    # print(request.form)
-    newQuizId = ""
-    newQuizName = ""
-    quizContent = []
-    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
-        formattedQnContent = {}
+# @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
+# def create_quiz(quizInfo):
+#     print("------------------------------")
+#     # for key, value in request.form.items():
+#     #     print("key:", key, " value:", value)
+#     # print(request.form)
+#     newQuizId = ""
+#     newQuizName = ""
+#     quizContent = []
+#     for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+#         formattedQnContent = {}
 
-        formattedQnContent['qnNum'] = f"qn{qnNum}"
-        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+#         formattedQnContent['qnNum'] = f"qn{qnNum}"
+#         formattedQnContent['question'] = request.form[f"qn{qnNum}"]
 
-        if request.form[f"ansType{qnNum}"] == "trueFalse":
-            formattedQnContent['answerType'] = "trueFalse"
-            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
-        else:
-            formattedQnContent['answerType'] = "mcq"
-            options = []
-            for optionNum in range(1,5):
-                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
-            formattedQnContent['answer'] = options
+#         if request.form[f"ansType{qnNum}"] == "trueFalse":
+#             formattedQnContent['answerType'] = "trueFalse"
+#             formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+#         else:
+#             formattedQnContent['answerType'] = "mcq"
+#             options = []
+#             for optionNum in range(1,5):
+#                 options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+#             formattedQnContent['answer'] = options
         
-        quizContent.append(formattedQnContent)
+#         quizContent.append(formattedQnContent)
     
-    print(quizContent)
+#     print(quizContent)
 
-    if request.form['graded'] == 'true':
-        graded = True
-    else:
-        graded = False
+#     if request.form['graded'] == 'true':
+#         graded = True
+#     else:
+#         graded = False
 
-    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
-    if last_quizId == None:
-        last_quizId = 'Q001'
-    else:
-        last_quizId = last_quizId.quizId
-        quizId_alphabet = last_quizId[0]
-        quiz_number = int(last_quizId[1:])
-        quiz_number += 1
-        newQuizId = quizId_alphabet + str(quiz_number)
-        newQuizName = "Quiz " + str(quiz_number)
+#     last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+#     if last_quizId == None:
+#         last_quizId = 'Q001'
+#     else:
+#         last_quizId = last_quizId.quizId
+#         quizId_alphabet = last_quizId[0]
+#         quiz_number = int(last_quizId[1:])
+#         quiz_number += 1
+#         newQuizId = quizId_alphabet + str(quiz_number)
+#         newQuizName = "Quiz " + str(quiz_number)
 
-    classId = request.form['classDetails']
+#     classId = request.form['classDetails']
 
-    # quizContent = json.dumps(quizContent)
-    print(quizContent)
+#     # quizContent = json.dumps(quizContent)
+#     print(quizContent)
 
-    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
-    db.session.add(newQuiz)
-    db.session.commit()
+#     newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+#     db.session.add(newQuiz)
+#     db.session.commit()
    
-    print("------------------------------")
-    return "quiz created"
+#     print("------------------------------")
+#     return "quiz created"
 
 @main_blueprint.route('/learner/courses/lesson')
 def lesson_page():
@@ -208,9 +213,37 @@ def lesson_page():
             "score": score if score else None,
         }
         lesson_content.append(content)
-    return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
+    return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 
 
+@main_blueprint.route('/learner/courses/lesson/score', methods=['POST'])
+def create_score():
+    data = request.get_json()
+    quizId = data['quizId']
+    learnerId = data['learnerId']
+    completedStatus = data['completedStatus']
+    scorePerc = data['scorePerc']
+    try:
+        score = Score.query.filter_by(
+            quizId=quizId, learnerId=learnerId).first()
+        if not score:
+            score = Score(**data)
+            db.session.add(score)
+            db.session.commit()
+        score.completedStatus = completedStatus
+        score.scorePerc = scorePerc
+        db.session.commit()
+    except:
+        return jsonify({
+            "code": 500,
+            "message": "An error occured creating the score."
+        })
+    return jsonify(
+        {
+            "code": 201,
+            "data": "Score created"
+        }
+    ), 201
 
 
 # IGNORE ALL BELOW FIRST
@@ -242,3 +275,61 @@ def user_profile_page():
     return render_template('main/user_profile_page.html',
                            form=form)
 
+
+@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
+def create_quiz(quizInfo):
+    print("------------------------------")
+    # for key, value in request.form.items():
+    #     print("key:", key, " value:", value)
+    # print(request.form)
+
+    quizContent = []
+    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+        formattedQnContent = {}
+
+        formattedQnContent['qnNum'] = f"qn{qnNum}"
+        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+
+        if request.form[f"ansType{qnNum}"] == "trueFalse":
+            formattedQnContent['answerType'] = "trueFalse"
+            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+        else:
+            formattedQnContent['answerType'] = "mcq"
+            options = []
+            for optionNum in range(1, 5):
+                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+            formattedQnContent['answer'] = options
+
+        quizContent.append(formattedQnContent)
+
+    print(quizContent)
+
+    if request.form['graded'] == 'true':
+        graded = True
+    else:
+        graded = False
+
+    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+    newQuizId = ""
+    newQuizName = ""
+    if last_quizId == None:
+        last_quizId = 'Q001'
+    else:
+        last_quizId = last_quizId.quizId
+        quizId_alphabet = last_quizId[0]
+        quiz_number = int(last_quizId[1:])
+        quiz_number += 1
+        newQuizId = quizId_alphabet + str(quiz_number)
+        newQuizName = "Quiz " + str(quiz_number)
+
+    classId = request.form['classDetails']
+
+    # quizContent = json.dumps(quizContent)
+    print(quizContent)
+
+    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+    db.session.add(newQuiz)
+    db.session.commit()
+
+    print("------------------------------")
+    return "quiz created"
