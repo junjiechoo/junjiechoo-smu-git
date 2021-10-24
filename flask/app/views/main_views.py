@@ -151,3 +151,60 @@ def user_profile_page():
     return render_template('main/user_profile_page.html',
                            form=form)
 
+@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
+def create_quiz(quizInfo):
+    print("------------------------------")
+    # for key, value in request.form.items():
+    #     print("key:", key, " value:", value)
+    # print(request.form)
+
+    quizContent = []
+    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+        formattedQnContent = {}
+
+        formattedQnContent['qnNum'] = f"qn{qnNum}"
+        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+
+        if request.form[f"ansType{qnNum}"] == "trueFalse":
+            formattedQnContent['answerType'] = "trueFalse"
+            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+        else:
+            formattedQnContent['answerType'] = "mcq"
+            options = []
+            for optionNum in range(1,5):
+                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+            formattedQnContent['answer'] = options
+        
+        quizContent.append(formattedQnContent)
+    
+    print(quizContent)
+
+    if request.form['graded'] == 'true':
+        graded = True
+    else:
+        graded = False
+
+    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+    newQuizId = ""
+    newQuizName = ""
+    if last_quizId == None:
+        last_quizId = 'Q001'
+    else:
+        last_quizId = last_quizId.quizId
+        quizId_alphabet = last_quizId[0]
+        quiz_number = int(last_quizId[1:])
+        quiz_number += 1
+        newQuizId = quizId_alphabet + str(quiz_number)
+        newQuizName = "Quiz " + str(quiz_number)
+
+    classId = request.form['classDetails']
+
+    # quizContent = json.dumps(quizContent)
+    print(quizContent)
+
+    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+    db.session.add(newQuiz)
+    db.session.commit()
+   
+    print("------------------------------")
+    return "quiz created"
