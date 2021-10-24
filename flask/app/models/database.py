@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import INT4RANGE, TIME, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from app import db
-
+import json
 
 class Course(db.Model):
     __tablename__ = 'Course'
@@ -286,6 +286,7 @@ class Quiz(db.Model):
         return self.classId
 
     def getQuizContent(self):
+        self.quizContent = json.dumps(self.quizContent)
         return self.quizContent
 
 class Score(db.Model):

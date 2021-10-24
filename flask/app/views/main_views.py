@@ -125,7 +125,13 @@ def lesson_page():
             "score": score if score else None,
         }
         lesson_content.append(content)
-    return render_template('main/lesson.html', course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
+    return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
+
+
+@main_blueprint.route('/learner/courses/lesson/score', methods = ['POST'])
+def create_score():
+    print('hello')
+    return
 
 
 # IGNORE ALL BELOW FIRST
