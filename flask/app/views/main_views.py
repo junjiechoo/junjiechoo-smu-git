@@ -128,10 +128,34 @@ def lesson_page():
     return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 
 
-@main_blueprint.route('/learner/courses/lesson/score', methods = ['POST'])
+@main_blueprint.route('/learner/courses/lesson/score', methods=['POST'])
 def create_score():
-    
-    return "200"
+    data = request.get_json()
+    quizId = data['quizId']
+    learnerId = data['learnerId']
+    completedStatus = data['completedStatus']
+    scorePerc = data['scorePerc']
+    try:
+        score = Score.query.filter_by(
+            quizId=quizId, learnerId=learnerId).first()
+        if not score:
+            score = Score(**data)
+            db.session.add(score)
+            db.session.commit()
+        score.completedStatus = completedStatus
+        score.scorePerc = scorePerc
+        db.session.commit()
+    except:
+        return jsonify({
+            "code": 500,
+            "message": "An error occured creating the score."
+        })
+    return jsonify(
+        {
+            "code": 201,
+            "data": "Score created"
+        }
+    ), 201
 
 
 # IGNORE ALL BELOW FIRST
@@ -163,6 +187,7 @@ def user_profile_page():
     return render_template('main/user_profile_page.html',
                            form=form)
 
+
 @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
 def create_quiz(quizInfo):
     print("------------------------------")
@@ -183,12 +208,12 @@ def create_quiz(quizInfo):
         else:
             formattedQnContent['answerType'] = "mcq"
             options = []
-            for optionNum in range(1,5):
+            for optionNum in range(1, 5):
                 options.append(request.form[f'qn{qnNum}_option{optionNum}'])
             formattedQnContent['answer'] = options
-        
+
         quizContent.append(formattedQnContent)
-    
+
     print(quizContent)
 
     if request.form['graded'] == 'true':
@@ -217,6 +242,6 @@ def create_quiz(quizInfo):
     newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
     db.session.add(newQuiz)
     db.session.commit()
-   
+
     print("------------------------------")
     return "quiz created"

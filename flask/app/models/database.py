@@ -5,8 +5,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import column
 from sqlalchemy.sql.sqltypes import JSON
+from sqlalchemy.schema import FetchedValue
 from app import db
 import json
+
 
 class Course(db.Model):
     __tablename__ = 'Course'
@@ -56,6 +58,7 @@ class HumanResource(Employee):
     def getHrName(self):
         return self.HRName
 
+
 class Learner(Employee):
     __tablename__ = 'Learner'
 
@@ -77,6 +80,7 @@ class Learner(Employee):
     def getCoursesTaken(self):
         return self.coursesTaken
 
+
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
 
@@ -86,7 +90,7 @@ class Trainer(db.Model):
 
     def getTrainerId(self):
         return self.trainerId
-    
+
     def getTrainerName(self):
         return self.trainerName
 
@@ -113,7 +117,6 @@ class Class(db.Model):
 
     Course = relationship('Course')
     Trainer = relationship('Trainer')
-
 
 
 class Forum(db.Model):
@@ -215,12 +218,14 @@ class Lesson(db.Model):
     def getMaterialIdList(self):
         return self.materialIdList
 
+
 class LessonStatus(db.Model):
     __tablename__ = 'LessonStatus'
 
     learnerId = db.Column(String(8), primary_key=True)
     lessonId = db.Column(String(144), primary_key=True)
     completionStatus = db.Column(Boolean, nullable=False)
+
 
 class Material(db.Model):
     __tablename__ = 'Material'
@@ -246,7 +251,8 @@ class Material(db.Model):
         return self.fileLink
 
     def getMaterialbyId(self, materialId):
-        material_record = Material.query.filter_by(materialId=materialId).first()
+        material_record = Material.query.filter_by(
+            materialId=materialId).first()
         return material_record
 
 
@@ -257,9 +263,10 @@ class MaterialAccess(db.Model):
     materialId = db.Column(String(144), primary_key=True)
     accessStatus = db.Column(Boolean, nullable=False)
 
+
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
-    
+
     quizId = db.Column(String(16), primary_key=True)
     quizName = db.Column(String(144), nullable=False)
     graded = db.Column(Boolean, nullable=False)
@@ -275,16 +282,16 @@ class Quiz(db.Model):
 
     def getQuizId(self):
         return self.quizId
-    
+
     def getQuizName(self):
         return self.quizName
 
     def getGraded(self):
         return self.graded
-    
+
     def getQuizContent(self):
         return self.quizContent
-    
+
     def getClassId(self):
         return self.classId
 
@@ -295,10 +302,11 @@ class Quiz(db.Model):
         self.quizContent = json.dumps(self.quizContent)
         return self.quizContent
 
+
 class Score(db.Model):
     __tablename__ = 'Score'
 
-    scoreId = db.Column(String(8), primary_key=True)
+    scoreId = db.Column(String(8), primary_key=True, server_default=FetchedValue())
     quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
     completedStatus = Column(Boolean, nullable=False)
@@ -307,8 +315,7 @@ class Score(db.Model):
     Learner = relationship('Learner')
     Quiz = relationship('Quiz')
 
-    def __init__(self, scoreId, quizId, learnerId, completedStatus, scorePerc):
-        self.scoreId = scoreId
+    def __init__(self, quizId, learnerId, completedStatus, scorePerc):
         self.quizId = quizId
         self.learnerId = learnerId
         self.completedStatus = completedStatus
@@ -316,7 +323,7 @@ class Score(db.Model):
 
     def getScoreId(self):
         return self.scoreId
-    
+
     def getQuizId(self):
         return self.quizId
 
