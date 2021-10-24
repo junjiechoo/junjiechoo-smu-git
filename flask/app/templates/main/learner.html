@@ -46,6 +46,8 @@
         <th>Course Name</th>
         <th>Prerequisites</th>
         <th>Apply</th>
+        <th>Assign Courses</th>
+        <th>Withdraw Courses</th>
     </tr>
 
     {% for i in courses %}
@@ -101,6 +103,7 @@
             Available Learner(s):
             <select name="learner" method="POST" action="/">
             {% for learn in learner %}
+            
                 {% if learn.getCoursesTaken().count(i.displayCourseId()) == 0 %}
                         <option value="{{learn.getLearnerName()}}" SELECTED>{{learn.getLearnerName()}}</option>"
                 {% endif %}    
@@ -121,6 +124,24 @@
             <input type="submit" value="Assign" class="btn btn-secondary">
             </form>
         </td>
+        <td>
+            <form action="/learner/courses/withdraw/{{i.displayCourseId()}}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                Enrolled Courses(s):
+                <select name="trainer" method="POST" action="/">
+                {% for train in trainer %}
+                    {% if train.getCoursesAssigned() != None %}
+                        {% if train.getCoursesAssigned().count(i.displayCourseId()) == 1 %}
+                                <option value="{{train.trainerName}}" SELECTED>{{train.trainerName}}</option>"
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </select>    
+                <br>
+                <input type="submit" value="Withdraw" class="btn btn-secondary">
+                </form>
+        </td>
+        
     </tr>
     {% endfor %}
 </table>
