@@ -54,8 +54,10 @@
         <td>
             {{i.displayCourseName()}}
             <br>
-            {% if i.displayCourseId() in learner[0].getCoursesTaken() %}
-                <span class="badge bg-success">Completed</span>
+            {% if learner[0].getCoursesTaken()|length > 0 %}
+                {% if i.displayCourseId() in learner[0].getCoursesTaken() %}
+                    <span class="badge bg-success">Completed</span>
+                {% endif %}
             {% endif %}
         </td>
         <td>
