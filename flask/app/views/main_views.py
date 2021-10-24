@@ -130,8 +130,8 @@ def lesson_page():
 
 @main_blueprint.route('/learner/courses/lesson/score', methods = ['POST'])
 def create_score():
-    print('hello')
-    return
+    
+    return "200"
 
 
 # IGNORE ALL BELOW FIRST
