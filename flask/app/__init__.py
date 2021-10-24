@@ -12,6 +12,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_user import UserManager
 from flask_wtf.csrf import CSRFProtect
 
+
 # Instantiate Flask extensions
 csrf_protect = CSRFProtect()
 db = SQLAlchemy()

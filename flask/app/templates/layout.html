@@ -51,9 +51,6 @@
                               <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="{{ url_for('main.lesson_page') }}">Lesson</a>
                               </li>
-                              <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{{ url_for('main.quiz_page') }}">Quizzes</a>
-                              </li>
                             </ul>
                           </div>
                         </div>
@@ -86,9 +83,8 @@
         </div>
 
         <!-- Bootstrap JS -->
-        <!-- <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script> -->
-        <!-- <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script> -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 
         <!-- Optional Google Analytics: change UA-XXXXX-X to be your site's ID.
         <script>
