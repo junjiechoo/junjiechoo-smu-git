@@ -1,7 +1,7 @@
 # coding: utf-8
 from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, MetaData, String, Time
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql.ranges import INT4RANGE
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import FetchedValue
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -11,26 +11,14 @@ metadata = Base.metadata
 
 
 
-class Answer(Base):
-    __tablename__ = 'Answers'
-
-    answerId = Column(String(144), primary_key=True)
-    questionId = Column(ForeignKey('Questions.questionId'), nullable=False)
-    isCorrect = Column(Boolean, nullable=False)
-    answerName = Column(String(144), nullable=False)
-
-    Question = relationship('Question', primaryjoin='Answer.questionId == Question.questionId', backref='answers')
-
-
-
 class Clas(Base):
     __tablename__ = 'Class'
 
     classId = Column(String(8), primary_key=True)
     className = Column(String(144), nullable=False)
     noStudents = Column(INT4RANGE)
-    courseId = Column(ForeignKey('Course.courseId'))
-    trainerId = Column(ForeignKey('Trainer.trainerId'), nullable=False)
+    courseId = Column(ForeignKey('Course.courseId', ondelete='CASCADE'))
+    trainerId = Column(ForeignKey('Trainer.trainerId', ondelete='CASCADE'), nullable=False)
     startDate = Column(Date)
     endDate = Column(Date)
     startTime = Column(Time(True))
@@ -66,14 +54,14 @@ class Employee(Base):
 class HumanResource(Employee):
     __tablename__ = 'HumanResource'
 
-    HRId = Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    HRId = Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), primary_key=True)
     HRName = Column(String(144), nullable=False)
 
 
 class Learner(Employee):
     __tablename__ = 'Learner'
 
-    learnerId = Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    learnerId = Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), primary_key=True)
     learnerName = Column(String(144), nullable=False)
     coursesTaken = Column(ARRAY(VARCHAR(length=144)))
     enrolledCourses = Column(ARRAY(VARCHAR()))
@@ -85,12 +73,12 @@ class Enrolment(Base):
     __tablename__ = 'Enrolment'
 
     enrolmentId = Column(String(8), primary_key=True)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
+    courseId = Column(ForeignKey('Course.courseId', ondelete='CASCADE'), nullable=False)
+    learnerId = Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), nullable=False)
     approvalStatus = Column(String(144), nullable=False)
     completionStatus = Column(String(144), nullable=False)
     numLessonCompleted = Column(Integer)
-    classId = Column(ForeignKey('Class.classId'), nullable=False)
+    classId = Column(ForeignKey('Class.classId', ondelete='CASCADE'), nullable=False)
 
     Clas = relationship('Clas', primaryjoin='Enrolment.classId == Clas.classId', backref='enrolments')
     Course = relationship('Course', primaryjoin='Enrolment.courseId == Course.courseId', backref='enrolments')
@@ -102,7 +90,7 @@ class Forum(Base):
     __tablename__ = 'Forum'
 
     threadId = Column(String(8), primary_key=True)
-    employeeId = Column(ForeignKey('Employee.employeeId'), nullable=False)
+    employeeId = Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), nullable=False)
 
     Employee = relationship('Employee', primaryjoin='Forum.employeeId == Employee.employeeId', backref='forums')
 
@@ -114,10 +102,10 @@ class Lesson(Base):
     lessonId = Column(String(144), primary_key=True)
     lessonNo = Column(Integer, nullable=False)
     lessonTitle = Column(String(144), nullable=False)
-    prereqLessonId = Column(ForeignKey('Lesson.lessonId'))
+    prereqLessonId = Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'))
     materialIdList = Column(ARRAY(VARCHAR()))
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    courseId = Column(ForeignKey('Course.courseId'), nullable=False)
+    quizId = Column(ForeignKey('Quiz.quizId', ondelete='CASCADE'))
+    courseId = Column(ForeignKey('Course.courseId', ondelete='CASCADE'), nullable=False)
 
     Course = relationship('Course', primaryjoin='Lesson.courseId == Course.courseId', backref='lessons')
     parent = relationship('Lesson', remote_side=[lessonId], primaryjoin='Lesson.prereqLessonId == Lesson.lessonId', backref='lessons')
@@ -128,8 +116,8 @@ class Lesson(Base):
 class LessonStatu(Base):
     __tablename__ = 'LessonStatus'
 
-    lessonId = Column(ForeignKey('Lesson.lessonId'), primary_key=True, nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), primary_key=True, nullable=False)
+    lessonId = Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'), primary_key=True, nullable=False)
+    learnerId = Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), primary_key=True, nullable=False)
     completionStatus = Column(Boolean, nullable=False)
 
     Learner = relationship('Learner', primaryjoin='LessonStatu.learnerId == Learner.learnerId', backref='lesson_status')
@@ -144,7 +132,7 @@ class Material(Base):
     materialName = Column(String(144), nullable=False)
     materialType = Column(String(144), nullable=False)
     fileLink = Column(String(1000), nullable=False)
-    lessonId = Column(ForeignKey('Lesson.lessonId'), nullable=False)
+    lessonId = Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'), nullable=False)
 
     Lesson = relationship('Lesson', primaryjoin='Material.lessonId == Lesson.lessonId', backref='materials')
 
@@ -153,25 +141,12 @@ class Material(Base):
 class MaterialAcces(Base):
     __tablename__ = 'MaterialAccess'
 
-    learnerId = Column(ForeignKey('Learner.learnerId'), primary_key=True, nullable=False)
-    materialId = Column(ForeignKey('Material.materialId'), primary_key=True, nullable=False)
+    learnerId = Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), primary_key=True, nullable=False)
+    materialId = Column(ForeignKey('Material.materialId', ondelete='CASCADE'), primary_key=True, nullable=False)
     accessStatus = Column(Boolean, nullable=False)
 
     Learner = relationship('Learner', primaryjoin='MaterialAcces.learnerId == Learner.learnerId', backref='material_access')
     Material = relationship('Material', primaryjoin='MaterialAcces.materialId == Material.materialId', backref='material_access')
-
-
-
-class Question(Base):
-    __tablename__ = 'Questions'
-
-    questionId = Column(String(144), primary_key=True, server_default=FetchedValue())
-    type = Column(String(144), nullable=False)
-    questionName = Column(String(144), nullable=False)
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    questionNo = Column(Integer, nullable=False)
-
-    Quiz = relationship('Quiz', primaryjoin='Question.quizId == Quiz.quizId', backref='questions')
 
 
 
@@ -181,7 +156,7 @@ class Quiz(Base):
     quizId = Column(String(16), primary_key=True)
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
-    classId = Column(ForeignKey('Class.classId'), nullable=False)
+    classId = Column(ForeignKey('Class.classId', ondelete='CASCADE'), nullable=False)
     quizContent = Column(ARRAY(JSONB(astext_type=Text())))
 
     Clas = relationship('Clas', primaryjoin='Quiz.classId == Clas.classId', backref='quizzes')
@@ -192,8 +167,8 @@ class Score(Base):
     __tablename__ = 'Score'
 
     scoreId = Column(String(8), primary_key=True, server_default=FetchedValue())
-    quizId = Column(ForeignKey('Quiz.quizId'), nullable=False)
-    learnerId = Column(ForeignKey('Learner.learnerId'), nullable=False)
+    quizId = Column(ForeignKey('Quiz.quizId', ondelete='CASCADE'), nullable=False)
+    learnerId = Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), nullable=False)
     completedStatus = Column(Boolean, nullable=False)
     scorePerc = Column(Integer, nullable=False)
 

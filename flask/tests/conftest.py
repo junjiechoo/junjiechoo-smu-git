@@ -16,9 +16,9 @@ the_app = create_app(dict(
     TESTING=True,  # Propagate exceptions
     LOGIN_DISABLED=False,  # Enable @register_required
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
-    SERVER_NAME='localhost',  # Enable url_for() without request context
+    SERVER_NAME='localhost.localdomain',  # Enable url_for() without request context
     # Testing Postgresql database
-    SQLALCHEMY_DATABASE_URI='postgresql://postgres:Godfather1?@localhost:5432/postgres',
+    SQLALCHEMY_DATABASE_URI='postgresql://postgres:lavender@localhost:5432/postgres',
     WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
 ))
 
@@ -53,7 +53,6 @@ def session(db, request):
     db.session = session
 
     def teardown():
-        # db.drop_all()
         transaction.rollback()
         connection.close()
         session.remove()

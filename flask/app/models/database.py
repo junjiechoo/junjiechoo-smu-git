@@ -49,7 +49,7 @@ class Employee(db.Model):
 class HumanResource(Employee):
     __tablename__ = 'HumanResource'
 
-    HRId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    HRId = db.Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), primary_key=True)
     HRName = db.Column(String(144), nullable=False)
 
     def getHrId(self):
@@ -62,7 +62,7 @@ class HumanResource(Employee):
 class Learner(Employee):
     __tablename__ = 'Learner'
 
-    learnerId = db.Column(ForeignKey('Employee.employeeId'), primary_key=True)
+    learnerId = db.Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), primary_key=True)
     learnerName = db.Column(String(144), nullable=False)
     coursesTaken = db.Column(ARRAY(String(length=144)))
     enrolledCourses = db.Column(ARRAY(String()))
@@ -104,8 +104,8 @@ class Class(db.Model):
     classId = db.Column(String(8), primary_key=True)
     className = db.Column(String(144), nullable=False)
     noStudents = db.Column(INT4RANGE)
-    courseId = db.Column(ForeignKey('Course.courseId'))
-    trainerId = db.Column(ForeignKey('Trainer.trainerId'), nullable=False)
+    courseId = db.Column(ForeignKey('Course.courseId', ondelete='CASCADE'))
+    trainerId = db.Column(ForeignKey('Trainer.trainerId', ondelete='CASCADE'), nullable=False)
     startDate = db.Column(Date, nullable=False)
     endDate = db.Column(Date, nullable=False)
     startTime = db.Column(TIME(True, 6), nullable=False)
@@ -123,7 +123,7 @@ class Forum(db.Model):
     __tablename__ = 'Forum'
 
     threadId = db.Column(String(8), primary_key=True)
-    employeeId = db.Column(ForeignKey('Employee.employeeId'), nullable=False)
+    employeeId = db.Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), nullable=False)
 
     Employee = relationship('Employee')
 
@@ -132,8 +132,8 @@ class Enrolment(db.Model):
     __tablename__ = 'Enrolment'
 
     enrolmentId = db.Column(String(8), primary_key=True)
-    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
-    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
+    courseId = db.Column(ForeignKey('Course.courseId', ondelete='CASCADE'), nullable=False)
+    learnerId = db.Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), nullable=False)
     approvalStatus = db.Column(String(144), nullable=False)
     completionStatus = db.Column(String(144), nullable=False)
     numLessonCompleted = db.Column(Integer)
@@ -185,10 +185,10 @@ class Lesson(db.Model):
     lessonId = db.Column(String(144), primary_key=True)
     lessonNo = db.Column(Integer, nullable=False)
     lessonTitle = db.Column(String(144), nullable=False)
-    courseId = db.Column(ForeignKey('Course.courseId'), nullable=False)
-    prereqLessonId = db.Column(ForeignKey('Lesson.lessonId'))
+    courseId = db.Column(ForeignKey('Course.courseId', ondelete='CASCADE'), nullable=False)
+    prereqLessonId = db.Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'))
     materialIdList = db.Column(ARRAY(String(144)))
-    quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
+    quizId = db.Column(ForeignKey('Quiz.quizId', ondelete='CASCADE'), nullable=False)
 
     Course = relationship('Course')
     parent = relationship('Lesson')
@@ -234,7 +234,7 @@ class Material(db.Model):
     materialName = db.Column(String(144), nullable=False)
     materialType = db.Column(String(144), nullable=False)
     fileLink = db.Column(String(1000), nullable=False)
-    lessonId = db.Column(ForeignKey('Lesson.lessonId'), nullable=False)
+    lessonId = db.Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'), nullable=False)
 
     Lesson = relationship('Lesson')
 
@@ -303,8 +303,8 @@ class Score(db.Model):
     __tablename__ = 'Score'
 
     scoreId = db.Column(String(8), primary_key=True, server_default=FetchedValue())
-    quizId = db.Column(ForeignKey('Quiz.quizId'), nullable=False)
-    learnerId = db.Column(ForeignKey('Learner.learnerId'), nullable=False)
+    quizId = db.Column(ForeignKey('Quiz.quizId', ondelete='CASCADE'), nullable=False)
+    learnerId = db.Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), nullable=False)
     completedStatus = Column(Boolean, nullable=False)
     scorePerc = db.Column(Integer, nullable=False)
 

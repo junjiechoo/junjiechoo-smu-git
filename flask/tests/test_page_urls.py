@@ -8,12 +8,12 @@ from app.models.database import *
 from app.views.main_views import *
 import json
 
-
-
-def success_quiz_submission(client, session):
+def test_home_page(client, session):
     # Visit home page
     response = client.get(url_for('main.home_page'), follow_redirects=True)
-    assert response.status_code==200
+    assert response.status_code == 200
+
+def test_success_quiz_submission(client, session):
 
     data = {
         "csrf_token": "IjJiZjNkZWEwYjQ4MGM0ODA3NjliNWE4MjhhMzBlOTM5ZjQyMDczNTci.YXQeJg.k9HPT8_Sm2Lghf23UMJT-xB6pm8",
@@ -34,42 +34,16 @@ def success_quiz_submission(client, session):
 
     response_quiz_created = client.post(
         "/trainer/quizzes/IS114-C001-LS005",
-        data = data,
+        data=data,
         headers={"Content-Type": "multipart/form-data"},
     )
 
-    print(response_quiz_created.data)
-
     assert(response_quiz_created.data == b'quiz created')
+
 
 def quiz_form_return_formatting(client, session):
     response = client.get(url_for('main.home_page'), follow_redirects=True)
-    assert response.status_code==200
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    assert response.status_code == 200
 
     # print(quiz1)
     # assert quiz1.quizId == "q1"

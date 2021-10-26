@@ -23,7 +23,7 @@ def init_db():
     """ Initialize the database."""
     db.drop_all()
     db.create_all()
-    create_users()
+    # create_users()
 
 
 def create_users():
