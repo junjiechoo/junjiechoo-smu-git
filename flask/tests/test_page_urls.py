@@ -38,7 +38,7 @@ def test_success_quiz_submission(client, session):
         headers={"Content-Type": "multipart/form-data"},
     )
 
-    assert(response_quiz_created.data == b'quiz createds')
+    assert(response_quiz_created.data == b'quiz created')
 
 
 
