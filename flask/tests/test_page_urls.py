@@ -41,10 +41,9 @@ def test_success_quiz_submission(client, session):
     assert(response_quiz_created.data == b'quiz created')
 
 
-def quiz_form_return_formatting(client, session):
-    response = client.get(url_for('main.home_page'), follow_redirects=True)
-    assert response.status_code == 200
 
+
+# Just leave for reference for now, but must delete later
     # print(quiz1)
     # assert quiz1.quizId == "q1"
 
