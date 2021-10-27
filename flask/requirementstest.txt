@@ -33,6 +33,7 @@ pycodestyle==2.7.0
 pycparser==2.20
 pytest==3.0.5
 pytest-cov==2.4.0
+pytest-mock==3.6.1
 six==1.16.0
 SQLAlchemy==1.4.25
 toml==0.10.2
