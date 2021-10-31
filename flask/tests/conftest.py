@@ -18,7 +18,7 @@ the_app = create_app(dict(
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
     SERVER_NAME='localhost.localdomain',  # Enable url_for() without request context
     # Testing Postgresql database
-    SQLALCHEMY_DATABASE_URI='postgresql://spm_pytest_db:ilovespm@spm-pytest-database.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm_pytest_db',
+    SQLALCHEMY_DATABASE_URI='postgresql://spm_pytest_db:spmsucks@spm-pytest-database.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm_pytest_db',
     WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
 ))
 

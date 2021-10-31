@@ -13,7 +13,7 @@ DEBUG = True
 SECRET_KEY = 'This is an UNSECURE Secret. CHANGE THIS for production environments.'
 
 # SQLAlchemy settings
-SQLALCHEMY_DATABASE_URI = 'postgresql://spm:ilovespm@spm.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm'
+SQLALCHEMY_DATABASE_URI = 'postgresql://spm:spmsucks@spm.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm'
 SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids a SQLAlchemy Warning
 
 # Flask-Mail settings
