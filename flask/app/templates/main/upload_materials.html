@@ -77,7 +77,7 @@
     hide(file_text_div);
     hide(name_input_div);
     hide(submit_button);
-    // submit_button.disabled = true;
+    submit_button.disabled = true;
     
     var course_select = document.getElementById('course_select');
     var type_select = document.getElementById("type_select");
@@ -152,6 +152,23 @@
             show(submit_button);
         }
     };
+
+    $("document").ready(function(){
+        $("#file_upload").change(function() {
+            var path = $("#file_upload").val();
+            console.log(path);
+            var filename = path.split('\\');
+            name_input.value = filename[filename.length - 1];
+            submit_button.disabled = false;
+        });
+    });
+
+    file_text.addEventListener("change", function () {
+        if (file_text.value.length > 0) {
+            name_input.value = file_text.value;
+            submit_button.disabled = false;
+        }
+    });
 
     function hide(element) {
         element.style.display = "none";
