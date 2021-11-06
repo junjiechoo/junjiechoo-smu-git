@@ -136,6 +136,14 @@ def quiz_page():
                         lessonsWithoutQuiz[lesson.lessonId] = classId.classId
     return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz = True)
 
+@main_blueprint.route('/courses/upload-materials')
+def uploadmaterials_page():
+    classes = Class.query.filter_by(trainerId='T001').order_by(Class.courseId).all()
+    courses = Course.query.all()
+    lessons = Lesson.query.all()
+    materials = Material.query.all()
+    return render_template('main/upload_materials.html', classes=classes, courses=courses, lessons=lessons, materials=materials)
+
 # @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
 # def create_quiz(quizInfo):
 #     print("------------------------------")
