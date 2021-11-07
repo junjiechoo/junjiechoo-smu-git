@@ -21,12 +21,10 @@ import subprocess
 import os
 
 s3 = boto3.client('s3',
-                  aws_access_key_id = "ASIAZ6DZTKH6HSXTZMW5",
-                  aws_secret_access_key="r0dJ/INIJOCsCPcBWZdSQGI0FMGH00BFSJuqgiKJ",
-                  aws_session_token="FwoGZXIvYXdzEP7//////////wEaDF+ZFUY3cpSNQiJ/LCLNATqjv3bJRHK/VjdIRl5NJ/HN8kJ5UtzzF2sL6LRRPCWk2b5u6+jaPJrgcmfhbAHIksNXtCiJD7Qla5+p+l4utTAQbbck4yV9bVdkaU+izRJI1Eh2IO3CMqSzr7eYzZbRcdgnKQiJpeX45ewcVw6Iidd2KcULpK11JCJyZLCcEeyIC0wUr3OJCJUiuAEIEFPelATFVHqd9oQgXk4b2FElOoy2Y6Q2bWuoF0qfqm1vSs5iR7YNSr9omVJPBY1+kzlWCNGiXHPjf9GehQgUujkomsKbjAYyLQG7uSjezXVKz3CXrGpdpz/sxHWqeRS0mcnvOu8Kt9zEOpLE9qGkGNFaMR/PVA=="
+                    aws_access_key_id='AKIA45COZBM2ANKUEJ4L', aws_secret_access_key='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'
                  )
 
-BUCKET_NAME = 'junjiechoosmuspm'
+BUCKET_NAME = 'keithprojectbucket'
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -357,9 +355,6 @@ def uploadmaterials_page():
 
 @main_blueprint.route('/courses/upload-materials/results', methods=['GET', 'POST'])
 def upload_materials():
-    # for key, value in request.form.items():
-    #     print("key:", key, " value:", value)
-    #     print(request.form)
     newMaterialId = ""
     newMaterialName = ""
     newMaterialType = ""
