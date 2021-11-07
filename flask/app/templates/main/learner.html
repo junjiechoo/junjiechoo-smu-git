@@ -7,12 +7,12 @@
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
 <!-- data population for enrolment -->
-<h5>Welcome {{learner[0].getLearnerName()}}</h5>
+<h5>Welcome <span style="color: blue; font-weight: bold;">{{learner[0].getLearnerName()}}</span></h5>
 
 {% if enteredEnrolment %}
 <h3>Course Applications</h3>
     {% if enrolments != None %}
-        <table>
+        <table class="table table-striped">
             <tr>
                 <th>CourseID</th>
                 <th>Course Name</th>
@@ -41,7 +41,7 @@
 <br><br>
 <h3>Courses Enrolled</h3>
     {% if enrolments != None %}
-        <table>
+        <table class="table table-striped">
             <tr>
                 <th>Course ID</th>
                 <th>Course Name</th>
@@ -67,9 +67,27 @@
 {% endif %}
 
 <!-- data population for courses -->
+{% if courseAssigned %}
+    {% set assignedCourses = enrolledCourses[0].getEnrolledCourses() %}
+    <div class="row">
+    {% for course in assignedCourses %}
+            <div class="col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{course}}</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="#" class="btn btn-primary">View Course</a>
+                </div>
+              </div>
+            </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
+
 {% if enteredCourses %}
 <h3>Courses</h3>
-<table>
+<table class="table table-striped">
     <tr>
         <th>CourseID</th>
         <th>Course Name</th>
@@ -121,13 +139,13 @@
             {% endfor %}
 
             {% if alreadyApplied.value == 1 %}
-            you have already applied
+            <div class="alert alert-danger" role="alert">You have already applied!</div>
             {% elif i.getPrerequisite() == None%}
-            <button
+            <button class="btn-sm btn-warning"
                 onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
                 Eligibility</button>
             {% else %}
-            <button
+            <button class="btn-sm btn-warning"
                 onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
                 Eligibility</button>
 
@@ -141,7 +159,7 @@
             <form action="/learner/courses/withdraw/{{i.displayCourseId()}}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 Enrolled Courses(s):
-                <select name="trainer" method="POST" action="/">
+                <select name="trainer" method="POST" action="/" class="form-select">
                     {% for train in trainer %}
                     {% if train.getCoursesAssigned() != None %}
                     {% if train.getCoursesAssigned().count(i.displayCourseId()) == 1 %}
@@ -151,7 +169,7 @@
                     {% endfor %}
                 </select>
                 <br>
-                <input type="submit" value="Withdraw" class="btn btn-secondary">
+                <input type="submit" value="Withdraw" class="btn btn-danger">
             </form>
         </td>
 
