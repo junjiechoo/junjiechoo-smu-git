@@ -132,7 +132,6 @@ class Class(db.Model):
     
     def getStartendDate(self):
         return self.startDate, self.endDate
-    
 
 
 class Forum(db.Model):

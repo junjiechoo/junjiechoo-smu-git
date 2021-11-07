@@ -23,14 +23,16 @@
             </tr>
 
             {% for i in enrolments %}
-            <tr>
-                <td>{{i[0].getCourseId()}}</td>
-                <td>{{i[1].displayCourseName()}}</td>
-                <td>{{i[0].getClassId()}}</td>
-                <td>{{i[0].getApprovalStatus()}}</td>
-                <td>{{i[0].getCompletionStatus()}}</td>
-                <td>{{i[0].getNumLessonCompleted()}}</td>
-            </tr>
+                {% if i[0].getApprovalStatus == 'pending approval' %}
+                    <tr>
+                        <td>{{i[0].getCourseId()}}</td>
+                        <td>{{i[1].displayCourseName()}}</td>
+                        <td>{{i[0].getClassId()}}</td>
+                        <td>{{i[0].getApprovalStatus()}}</td>
+                        <td>{{i[0].getCompletionStatus()}}</td>
+                        <td>{{i[0].getNumLessonCompleted()}}</td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </table>
     {% else %}
@@ -49,12 +51,13 @@
             </tr>
             <tr>
                 {% for i in enrolments %}
-                <td>{{i[0].getCourseId()}}</td>
-                <td>{{i[1].displayCourseName()}}</td>
-                <td>{{i[0].getClassId()}}</td>
-                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
-                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
-                
+                    {% if i[0].getApprovalStatus() == 'approved' %}
+                        <td>{{i[0].getCourseId()}}</td>
+                        <td>{{i[1].displayCourseName()}}</td>
+                        <td>{{i[0].getClassId()}}</td>
+                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
+                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
+                    {% endif %}
                 {% endfor %}
             </tr>
         </table>
@@ -103,6 +106,12 @@
             {% if application.getCourseId() == i.displayCourseId() %}
             {% set alreadyApplied.value = 1 %}
             {% endif %}
+            {% endfor %}
+
+            {% for courseId in learner[0].getCoursesTaken() %}
+                {% if i.displayCourseId() ==  courseId %}
+                    {% set alreadyApplied.value = 1 %}
+                {% endif %}
             {% endfor %}
 
             {% for courseId in learner[0].getCoursesTaken() %}
@@ -175,17 +184,15 @@
     }
 
     function applyCourse(courseId, learnerId) {
-        var userInfo = { 'courseId': courseId, 'learnerId': learnerId };
-
-        postCourse('/learner/courses', userInfo)
-            .then(data => {
-                if (data.code == 201) {
-                    console.log(data)
-                    window.location.reload()
-                } else {
-                    console.log(data)
-                }
-            })
+        var userInfo = JSON.stringify({ 'courseId': courseId, 'learnerId': learnerId });
+        console.log('applying for course now');
+        const request = new XMLHttpRequest()
+        request.open("GET", `/learner/courses/${userInfo}`);
+        request.onload = () => {
+            const flaskMessage = request.responseText;
+            document.getElementById(courseId).innerHTML = `<b>${flaskMessage}</b>`;
+        }
+        request.send();
     }
 
     function checkEligibility(prereq, courseId, coursesCompleted, learnerId) {

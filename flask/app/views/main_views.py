@@ -22,8 +22,8 @@ import subprocess
 import os
 
 s3 = boto3.client('s3',
-                    aws_access_key_id='AKIA45COZBM2ANKUEJ4L', aws_secret_access_key='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'
-                 )
+                  aws_access_key_id='AKIA45COZBM2ANKUEJ4L', aws_secret_access_key='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'
+                  )
 
 BUCKET_NAME = 'keithprojectbucket'
 
@@ -50,8 +50,9 @@ def enrolment_page():
         Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L003')
     if enrolments.count() == 0:
         enrolments = None
+
     learner = Learner.query.filter_by(learnerId='L003')
-    
+
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
 
@@ -81,41 +82,73 @@ def courses_page():
 #     return render_template('main/learner.html')
 
 
-@main_blueprint.route('/learner/courses', methods=['POST'])
-def applicationInfo():
-    data = request.get_json()
-    courseId = data['courseId']
-    learnerId = data['learnerId']
+@main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
+def course_id(id):
+    learner = request.form.get('learner')
+    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
+    learner_to_update = Learner.query.get(learner_to_update.learnerId)
 
-    try:
-        latest_enrolment = Enrolment.query.order_by(
-            Enrolment.enrolmentId.desc()).first()
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
 
-        if latest_enrolment == None:
-            latest_enrolment_id = 'E1'
-        else:
-            latest_enrolment_id = latest_enrolment.enrolmentId
-            enrolment_letter = latest_enrolment_id[0]
-            enrolment_number = int(latest_enrolment_id[1:])
-            enrolment_number += 1
-            latest_enrolment_id = enrolment_letter + str(enrolment_number)
+    print(learner_to_update.enrolledCourses)
+    learner_to_update.enrolledCourses.append(id)
+    trainer_to_update.coursesAssigned.append(id)
+    db.session.commit()
 
-        newEnrolment = Enrolment(
-            latest_enrolment_id, courseId, learnerId, 'pending', 'pending approval', 0, 'C001')
+    return render_template('main/learner.html')
 
-        db.session.add(newEnrolment)
-        db.session.commit()
-    except:
-        return jsonify({
-            "code": 500,
-            "message": "An error occured when applying for course."
-        })
-    return jsonify(
-        {
-            "code": 201,
-            "data": "Score created"
-        }
-    ), 201
+
+@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
+def coursewithdraw_id(id):
+    trainer = request.form.get('trainer')
+    print(trainer)
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+    trainer_to_update.coursesAssigned.remove(id)
+    db.session.commit()
+
+    return render_template('main/withdrawl_page.html', trainer=trainer, courseid=id)
+
+
+# to enrol into a course
+# can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
+
+@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
+def applicationInfo(userInfo):
+    userInfo = json.loads(userInfo)
+    print()
+    print(
+        f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}")
+    print('------------------')
+
+    # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
+    latest_enrolment = Enrolment.query.order_by(
+        Enrolment.enrolmentId.desc()).first()
+
+    learner = Learner.query.filter_by(learnerId=userInfo['learnerId'])
+
+    if latest_enrolment == None:
+        latest_enrolment_id = 'E1'
+    else:
+        latest_enrolment_id = latest_enrolment.enrolmentId
+        enrolment_letter = latest_enrolment_id[0]
+        enrolment_number = int(latest_enrolment_id[1:])
+        enrolment_number += 1
+        latest_enrolment_id = enrolment_letter + str(enrolment_number)
+
+    newEnrolment = Enrolment(
+        latest_enrolment_id, userInfo['courseId'], userInfo['learnerId'], 'pending', 'pending approval', 0, 'C001')
+    db.session.add(newEnrolment)
+
+    # delete test row
+    # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
+    # DELETE FROM spm."Enrolment" WHERE "enrolmentId" = 'E6';
+
+    db.session.commit()
+    print("application successful")
+    return f"{learner[0].getLearnerName()} has applied for course {userInfo['courseId']}"
 
 
 @main_blueprint.route('/learner/courses/lesson')
@@ -179,9 +212,11 @@ def admin_page():
     trainer = Trainer.query.all()
     return render_template('main/admin_courses.html', courses=courses, learner=learner, trainer=trainer,  enteredCourses=True)
 
+
 @main_blueprint.route('/admin/create', methods=['POST', 'GET'])
 def admin_create():
     return render_template('main/admin_create_course.html')
+
 
 @main_blueprint.route('/admin/create/course', methods=['POST', 'GET'])
 def admin_create_course():
@@ -199,32 +234,6 @@ def admin_create_course():
 
     return redirect(url_for('main.admin_page'))
 
-@main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
-def course_id(id):
-    learner = request.form.get('learner')
-    learner_to_update = Learner.query.filter_by(learnerId=learner).first()
-    learner_to_update = Learner.query.get(learner_to_update.learnerId)
-
-    trainer = request.form.get('trainer')
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-
-    print(learner_to_update.enrolledCourses)
-    learner_to_update.enrolledCourses.append(id)
-    trainer_to_update.coursesAssigned.append(id)
-    db.session.commit()
-
-    return render_template('main/learner.html')
-
-@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
-def coursewithdraw_id(id):
-    trainer = request.form.get('trainer')
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-    trainer_to_update.coursesAssigned.remove(id)
-    db.session.commit()
-
-    return render_template('main/withdrawl_page.html', trainer=trainer, courseid=id)
 
 
 @main_blueprint.route('/trainer')
@@ -308,9 +317,9 @@ def create_quiz(quizInfo):
         }
     ), 201
 
-
     print("------------------------------")
     return "quiz created"
+
 
 @main_blueprint.route('/courses/upload-materials')
 def uploadmaterials_page():
@@ -320,6 +329,7 @@ def uploadmaterials_page():
     materials = Material.query.all()
     return render_template('main/upload_materials.html', trainer=trainer, courses=courses, lessons=lessons, materials=materials)
 
+
 @main_blueprint.route('/courses/upload-materials/results', methods=['GET', 'POST'])
 def upload_materials():
     newMaterialId = ""
@@ -328,8 +338,9 @@ def upload_materials():
     newFileLink = ""
     lessonId = ""
 
-    last_materialId = Material.query.order_by(Material.materialId.desc()).first()
-    
+    last_materialId = Material.query.order_by(
+        Material.materialId.desc()).first()
+
     if last_materialId == None:
         last_materialId = 'M001'
     else:
@@ -346,19 +357,24 @@ def upload_materials():
         filename = secure_filename(file.filename)
         file.save(filename)
         s3.upload_file(filename, BUCKET_NAME, "materials/documents/"+filename)
-        newFileLink = "https://"+BUCKET_NAME+".s3.amazonaws.com/materials/documents/"+(file.filename).replace(" ", "_")
+        newFileLink = "https://"+BUCKET_NAME + \
+            ".s3.amazonaws.com/materials/documents/" + \
+            (file.filename).replace(" ", "_")
     elif (newMaterialType == "video"):
         file = request.files["vid_upload"]
         filename = secure_filename(file.filename)
         file.save(filename)
         s3.upload_file(filename, BUCKET_NAME, "materials/videos/"+filename)
-        newFileLink = "https://"+BUCKET_NAME+".s3.amazonaws.com/materials/videos/"+(file.filename).replace(" ", "_")
+        newFileLink = "https://"+BUCKET_NAME + \
+            ".s3.amazonaws.com/materials/videos/" + \
+            (file.filename).replace(" ", "_")
     else:
         newFileLink = request.form["file_text"].replace(" ", "_")
-        
+
     lessonId = request.form[(request.form["course_select"]+"_lesson_select")]
 
-    newMaterial = Material(newMaterialId, newMaterialName, newMaterialType, newFileLink, lessonId)
+    newMaterial = Material(newMaterialId, newMaterialName,
+                           newMaterialType, newFileLink, lessonId)
     db.session.add(newMaterial)
     db.session.commit()
 
