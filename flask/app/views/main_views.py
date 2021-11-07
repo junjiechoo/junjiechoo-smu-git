@@ -28,7 +28,6 @@ def home_page():
 
 @main_blueprint.route('/learner')
 def learner_page():
-    #hello-wor
     learner = Learner.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', learner=learner)
 
@@ -50,148 +49,59 @@ def courses_page():
     return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
 # for HR to assign trainer and learners to a course
+# @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
+# def course_id(id):
+#     learner = request.form.get('learner')
+#     learner_to_update = Learner.query.filter_by(learnerName=learner).first()
+#     learner_to_update = Learner.query.get(learner_to_update.learnerId)
 
+#     trainer = request.form.get('trainer')
+#     trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+#     trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
 
-@main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
-def course_id(id):
-    learner = request.form.get('learner')
-    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
-    learner_to_update = Learner.query.get(learner_to_update.learnerId)
-
-    trainer = request.form.get('trainer')
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-
-    print(learner_to_update.enrolledCourses)
-    learner_to_update.enrolledCourses.append(id)
-    trainer_to_update.coursesAssigned.append(id)
-    db.session.commit()
-
-    return render_template('main/learner.html')
-
-@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
-def coursewithdraw_id(id):
-    trainer = request.form.get('trainer')
-    print(trainer)
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-    trainer_to_update.coursesAssigned.remove(id)
-    db.session.commit()
-
-    return render_template('main/withdrawl_page.html', trainer=trainer, courseid = id)
-
-
-# to enrol into a course
-# can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
-
-
-@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
-def applicationInfo(userInfo):
-    userInfo = json.loads(userInfo)
-    print()
-    print(
-        f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}")
-    print('------------------')
-
-    # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
-    latest_enrolment = Enrolment.query.order_by(
-        Enrolment.enrolmentId.desc()).first()
-
-    if latest_enrolment == None:
-        latest_enrolment_id = 'E1'
-    else:
-        latest_enrolment_id = latest_enrolment.enrolmentId
-        enrolment_letter = latest_enrolment_id[0]
-        enrolment_number = int(latest_enrolment_id[1:])
-        enrolment_number += 1
-        latest_enrolment_id = enrolment_letter + str(enrolment_number)
-
-    newEnrolment = Enrolment(
-        latest_enrolment_id, userInfo['courseId'], userInfo['learnerId'], 'pending', 'pending approval', 0, 'C001')
-    db.session.add(newEnrolment)
-
-    # delete test row
-    # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
-
-    # commit row insert/delete to make change visible to db
-    db.session.commit()
-    return('trying to do this part now')
-
-@main_blueprint.route('/trainer')
-def trainer_page():
-    trainer = Trainer.query.filter_by(trainerId = 'T001')
-    return render_template('main/admin_page.html', trainer=trainer)
-
-@main_blueprint.route('/trainer/quizzes')
-def quiz_page():
-    lessonsWithoutQuiz = {}
-    assignedClasses = Class.query.filter_by(trainerId = 'T001')
-    for classId in assignedClasses:
-        if classId.lessonIdList != None:
-            for lessonIdQuery in classId.lessonIdList:
-                lessonIdQuery = lessonIdQuery[1:-1]
-                lessonDetails = Lesson.query.filter_by(lessonId = lessonIdQuery)
-                for lesson in lessonDetails:
-                    if lesson.quizId != None:
-                        lessonsWithoutQuiz[lesson.lessonId] = classId.classId
-    return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz = True)
-
-# @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
-# def create_quiz(quizInfo):
-#     print("------------------------------")
-#     # for key, value in request.form.items():
-#     #     print("key:", key, " value:", value)
-#     # print(request.form)
-#     newQuizId = ""
-#     newQuizName = ""
-#     quizContent = []
-#     for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
-#         formattedQnContent = {}
-
-#         formattedQnContent['qnNum'] = f"qn{qnNum}"
-#         formattedQnContent['question'] = request.form[f"qn{qnNum}"]
-
-#         if request.form[f"ansType{qnNum}"] == "trueFalse":
-#             formattedQnContent['answerType'] = "trueFalse"
-#             formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
-#         else:
-#             formattedQnContent['answerType'] = "mcq"
-#             options = []
-#             for optionNum in range(1,5):
-#                 options.append(request.form[f'qn{qnNum}_option{optionNum}'])
-#             formattedQnContent['answer'] = options
-        
-#         quizContent.append(formattedQnContent)
-    
-#     print(quizContent)
-
-#     if request.form['graded'] == 'true':
-#         graded = True
-#     else:
-#         graded = False
-
-#     last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
-#     if last_quizId == None:
-#         last_quizId = 'Q001'
-#     else:
-#         last_quizId = last_quizId.quizId
-#         quizId_alphabet = last_quizId[0]
-#         quiz_number = int(last_quizId[1:])
-#         quiz_number += 1
-#         newQuizId = quizId_alphabet + str(quiz_number)
-#         newQuizName = "Quiz " + str(quiz_number)
-
-#     classId = request.form['classDetails']
-
-#     # quizContent = json.dumps(quizContent)
-#     print(quizContent)
-
-#     newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
-#     db.session.add(newQuiz)
+#     learner_to_update.enrolledCourses.append(id)
+#     trainer_to_update.coursesAssigned.append(id)
 #     db.session.commit()
-   
-#     print("------------------------------")
-#     return "quiz created"
+
+#     return render_template('main/learner.html')
+
+
+@main_blueprint.route('/learner/courses', methods=['POST'])
+def applicationInfo():
+    data = request.get_json()
+    courseId = data['courseId']
+    learnerId = data['learnerId']
+
+    try:
+        latest_enrolment = Enrolment.query.order_by(
+            Enrolment.enrolmentId.desc()).first()
+
+        if latest_enrolment == None:
+            latest_enrolment_id = 'E1'
+        else:
+            latest_enrolment_id = latest_enrolment.enrolmentId
+            enrolment_letter = latest_enrolment_id[0]
+            enrolment_number = int(latest_enrolment_id[1:])
+            enrolment_number += 1
+            latest_enrolment_id = enrolment_letter + str(enrolment_number)
+
+        newEnrolment = Enrolment(
+            latest_enrolment_id, courseId, learnerId, 'pending', 'pending approval', 0, 'C001')
+
+        db.session.add(newEnrolment)
+        db.session.commit()
+    except:
+        return jsonify({
+            "code": 500,
+            "message": "An error occured when applying for course."
+        })
+    return jsonify(
+        {
+            "code": 201,
+            "data": "Score created"
+        }
+    ), 201
+
 
 @main_blueprint.route('/learner/courses/lesson')
 def lesson_page():
@@ -229,19 +139,111 @@ def create_score():
         if not score:
             score = Score(**data)
             db.session.add(score)
-            db.session.commit()
         score.completedStatus = completedStatus
         score.scorePerc = scorePerc
         db.session.commit()
     except:
         return jsonify({
             "code": 500,
-            "message": "An error occured creating the score."
+            "message": "An error occured when creating the score."
         })
     return jsonify(
         {
             "code": 201,
             "data": "Score created"
+        }
+    ), 201
+
+
+@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
+def coursewithdraw_id(id):
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+    trainer_to_update.coursesAssigned.remove(id)
+    db.session.commit()
+
+    return render_template('main/withdrawl_page.html', trainer=trainer, courseid=id)
+
+
+@main_blueprint.route('/trainer')
+def trainer_page():
+    trainer = Trainer.query.filter_by(trainerId='T001')
+    return render_template('main/admin_page.html', trainer=trainer)
+
+
+@main_blueprint.route('/trainer/quizzes')
+def quiz_page():
+    lessonsWithoutQuiz = {}
+    assignedClasses = Class.query.filter_by(trainerId='T001')
+    for classId in assignedClasses:
+        if classId.lessonIdList != None:
+            for lessonIdQuery in classId.lessonIdList:
+                lessonIdQuery = lessonIdQuery[1:-1]
+                lessonDetails = Lesson.query.filter_by(lessonId=lessonIdQuery)
+                for lesson in lessonDetails:
+                    if lesson.quizId != None:
+                        lessonsWithoutQuiz[lesson.lessonId] = classId.classId
+    return render_template('main/admin_page.html', assignedClasses=assignedClasses, lessonsWithoutQuiz=lessonsWithoutQuiz, enteredCreateQuiz=True)
+
+
+@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['POST'])
+def create_quiz(quizInfo):
+    newQuizId = ""
+    newQuizName = ""
+    graded = ""
+    classId = ""
+    quizContent = []
+
+    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
+        formattedQnContent = {}
+
+        formattedQnContent['qnNum'] = f"qn{qnNum}"
+        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
+
+        if request.form[f"ansType{qnNum}"] == "trueFalse":
+            formattedQnContent['answerType'] = "trueFalse"
+            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
+        else:
+            formattedQnContent['answerType'] = "mcq"
+            options = []
+            for optionNum in range(1, 5):
+                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
+            formattedQnContent['answer'] = options
+
+        quizContent.append(formattedQnContent)
+
+    if request.form['graded'] == 'true':
+        graded = True
+    else:
+        graded = False
+
+    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
+    if last_quizId == None:
+        last_quizId = 'Q001'
+    else:
+        last_quizId = last_quizId.quizId
+        quizId_alphabet = last_quizId[0]
+        quiz_number = int(last_quizId[1:])
+        quiz_number += 1
+        newQuizId = quizId_alphabet + str(quiz_number)
+        newQuizName = "Quiz " + str(quiz_number)
+
+    classId = request.form['classDetails']
+
+    try:
+        newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+        db.session.add(newQuiz)
+        db.session.commit()
+    except:
+        return jsonify({
+            "code": 500,
+            "message": "An error occured when creating the quiz."
+        })
+    return jsonify(
+        {
+            "code": 201,
+            "data": "Quiz created"
         }
     ), 201
 
@@ -274,62 +276,3 @@ def user_profile_page():
     # Process GET or invalid POST
     return render_template('main/user_profile_page.html',
                            form=form)
-
-
-@main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['GET', 'POST'])
-def create_quiz(quizInfo):
-    print("------------------------------")
-    # for key, value in request.form.items():
-    #     print("key:", key, " value:", value)
-    # print(request.form)
-
-    quizContent = []
-    for qnNum in range(1, int(request.form['totalNumQuestions'])+1):
-        formattedQnContent = {}
-
-        formattedQnContent['qnNum'] = f"qn{qnNum}"
-        formattedQnContent['question'] = request.form[f"qn{qnNum}"]
-
-        if request.form[f"ansType{qnNum}"] == "trueFalse":
-            formattedQnContent['answerType'] = "trueFalse"
-            formattedQnContent['answer'] = request.form[f'tfAns{qnNum}']
-        else:
-            formattedQnContent['answerType'] = "mcq"
-            options = []
-            for optionNum in range(1, 5):
-                options.append(request.form[f'qn{qnNum}_option{optionNum}'])
-            formattedQnContent['answer'] = options
-
-        quizContent.append(formattedQnContent)
-
-    print(quizContent)
-
-    if request.form['graded'] == 'true':
-        graded = True
-    else:
-        graded = False
-
-    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
-    newQuizId = ""
-    newQuizName = ""
-    if last_quizId == None:
-        last_quizId = 'Q001'
-    else:
-        last_quizId = last_quizId.quizId
-        quizId_alphabet = last_quizId[0]
-        quiz_number = int(last_quizId[1:])
-        quiz_number += 1
-        newQuizId = quizId_alphabet + str(quiz_number)
-        newQuizName = "Quiz " + str(quiz_number)
-
-    classId = request.form['classDetails']
-
-    # quizContent = json.dumps(quizContent)
-    print(quizContent)
-
-    newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
-    db.session.add(newQuiz)
-    db.session.commit()
-
-    print("------------------------------")
-    return "quiz created"

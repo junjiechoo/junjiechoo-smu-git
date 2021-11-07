@@ -12,4 +12,4 @@ def generate_model(host, user, password, database, outfile = None):
     generator.render(outfile)
 
 if __name__ == '__main__':
-    generate_model('spm.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432', 'spm', 'spmsucks', 'spm', 'db.py')
+    generate_model('spm.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432', 'spm', 'ilovespm', 'spm', 'db.py')

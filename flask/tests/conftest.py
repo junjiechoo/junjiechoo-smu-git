@@ -10,6 +10,8 @@ from app.commands.init_db import init_db
 import pytest
 from app import create_app, db as the_db
 from app.models.database import *
+from flask import template_rendered
+
 
 # Initialize the Flask-App with test-specific settings
 the_app = create_app(dict(
@@ -18,7 +20,7 @@ the_app = create_app(dict(
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
     SERVER_NAME='localhost.localdomain',  # Enable url_for() without request context
     # Testing Postgresql database
-    SQLALCHEMY_DATABASE_URI='postgresql://spm_pytest_db:spmsucks@spm-pytest-database.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm_pytest_db',
+    SQLALCHEMY_DATABASE_URI='postgresql://spm_pytest_db:ilovespm@spm-pytest-database.cjoz1mqq6cvp.us-east-1.rds.amazonaws.com:5432/spm',
     WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
 ))
 
@@ -26,8 +28,7 @@ the_app = create_app(dict(
 the_app.app_context().push()
 
 # Create and populate roles and users tables
-init_db()
-
+# init_db()
 
 @pytest.fixture(scope='session')
 def app():
@@ -64,3 +65,18 @@ def session(db, request):
 @pytest.fixture(scope='session')
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture(scope='session')
+def captured_templates(app):
+    recorded = []
+
+    def record(sender, template, context, **extra):
+        recorded.append((template, context))
+
+    template_rendered.connect(record, app)
+
+    try: 
+        yield recorded
+    finally:
+        template_rendered.disconnect(record, app)
