@@ -127,8 +127,13 @@ class Class(db.Model):
     Course = relationship('Course')
     Trainer = relationship('Trainer')
 
+    def getCourseId(self):
+        return self.courseId
+    
     def getStartendDate(self):
         return self.startDate, self.endDate
+    
+
 
 class Forum(db.Model):
     __tablename__ = 'Forum'
@@ -226,6 +231,9 @@ class Lesson(db.Model):
     def getLessonTitle(self):
         return self.lessonTitle
 
+    def getCourseId(self):
+        return self.courseId
+
     def getPrereqLessonId(self):
         return self.prereqLessonId
 
@@ -251,6 +259,13 @@ class Material(db.Model):
     lessonId = db.Column(ForeignKey('Lesson.lessonId', ondelete='CASCADE'), nullable=False)
 
     Lesson = relationship('Lesson')
+
+    def __init__(self, materialId, materialName, materialType, fileLink, lessonId):
+        self.materialId = materialId
+        self.materialName = materialName
+        self.materialType = materialType
+        self.fileLink = fileLink
+        self.lessonId = lessonId
 
     def getMaterialId(self):
         return self.materialId

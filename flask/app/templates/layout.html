@@ -21,6 +21,9 @@
 
         <!-- Application specific CSS-->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
     <body>
         {% block body %}
@@ -53,6 +56,9 @@
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="{{ url_for('main.quiz_page') }}">Quizzes</a>
+                              </li>
+                              <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="{{ url_for('main.uploadmaterials_page') }}">Upload Materials</a>
                               </li>
                             </ul>
                           </div>

@@ -16,6 +16,17 @@ from app import db
 from app.models.user_models import UserProfileForm
 from app.models.database import *
 
+from werkzeug.utils import secure_filename
+import boto3
+import subprocess
+import os
+
+s3 = boto3.client('s3',
+                    aws_access_key_id='AKIA45COZBM2ANKUEJ4L', aws_secret_access_key='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'
+                 )
+
+BUCKET_NAME = 'keithprojectbucket'
+
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
 # The Home page is accessible to anyone
@@ -40,8 +51,6 @@ def enrolment_page():
         Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L002')
     if enrolments.count() == 0:
         enrolments = None
-
-    
     learner = Learner.query.filter_by(learnerId='L002')
     
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
@@ -369,3 +378,63 @@ def create_quiz(quizInfo):
 
     print("------------------------------")
     return "quiz created"
+
+@main_blueprint.route('/courses/upload-materials')
+def uploadmaterials_page():
+    trainer = Trainer.query.filter_by(trainerId='T003').first()
+    courses = Course.query.all()
+    lessons = Lesson.query.order_by(Lesson.lessonId).all()
+    materials = Material.query.all()
+    return render_template('main/upload_materials.html', trainer=trainer, courses=courses, lessons=lessons, materials=materials)
+
+@main_blueprint.route('/courses/upload-materials/results', methods=['GET', 'POST'])
+def upload_materials():
+    newMaterialId = ""
+    newMaterialName = ""
+    newMaterialType = ""
+    newFileLink = ""
+    lessonId = ""
+
+    last_materialId = Material.query.order_by(Material.materialId.desc()).first()
+    
+    if last_materialId == None:
+        last_materialId = 'M001'
+    else:
+        last_materialId = last_materialId.materialId
+        materialId_alphabet = last_materialId[0]
+        material_number = int(last_materialId[1:])
+        material_number += 1
+        newMaterialId = materialId_alphabet + str(material_number)
+
+    newMaterialName = request.form["name_input"]
+    newMaterialType = request.form["type_select"]
+    if newMaterialType == "document":
+        file = request.files["doc_upload"]
+        filename = secure_filename(file.filename)
+        file.save(filename)
+        s3.upload_file(filename, BUCKET_NAME, "materials/documents/"+filename)
+        newFileLink = "https://"+BUCKET_NAME+".s3.amazonaws.com/materials/documents/"+(file.filename).replace(" ", "_")
+    elif (newMaterialType == "video"):
+        file = request.files["vid_upload"]
+        filename = secure_filename(file.filename)
+        file.save(filename)
+        s3.upload_file(filename, BUCKET_NAME, "materials/videos/"+filename)
+        newFileLink = "https://"+BUCKET_NAME+".s3.amazonaws.com/materials/videos/"+(file.filename).replace(" ", "_")
+    else:
+        newFileLink = request.form["file_text"].replace(" ", "_")
+        
+    lessonId = request.form[(request.form["course_select"]+"_lesson_select")]
+
+    newMaterial = Material(newMaterialId, newMaterialName, newMaterialType, newFileLink, lessonId)
+    db.session.add(newMaterial)
+    db.session.commit()
+
+    newMaterialIdList = []
+    lesson = Lesson.query.filter_by(lessonId=lessonId).first()
+    for materialId in lesson.getMaterialIdList():
+        newMaterialIdList.append(materialId)
+    newMaterialIdList.append(newMaterialId)
+    lesson.materialIdList = newMaterialIdList
+    db.session.commit()
+
+    return render_template('main/upload_materials_results.html', message="material uploaded successfully")

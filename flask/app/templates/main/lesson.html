@@ -104,7 +104,7 @@
                                         {% for m in material %}
                                         {% if m.getMaterialType() == "document" %}
                                         <a href="#"
-                                            onclick="renderdocuments('{{m.getFileLink() }}')">{{m.getMaterialName()}}</a>
+                                            onclick="renderdocuments('{{m.getFileLink()}}')">{{m.getMaterialName()}}</a>
                                         <br />
                                         {% endif %}
                                         {% endfor %}
