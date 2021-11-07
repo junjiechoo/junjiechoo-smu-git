@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+<h2>{%trans%}Trainer's Page{%endtrans%}</h2>
+
+{% block content %}
+<!-- data population for enrolment -->
+<h5>Assigned courses for <b style="color:blue">{{trainer[0].getTrainerName()}}</b></h5>
+
+
+{% set assignedTrainerCourses = trainer[0].getCoursesAssigned() %}
+    <div class="row">
+    {% for course in assignedTrainerCourses %}
+            <div class="col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{course}}</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="{{ url_for('main.lesson_page') }}" class="btn btn-primary">View Course</a>
+                </div>
+              </div>
+            </div>
+    {% endfor %}
+    </div>
+
+
+
+{% endblock %}

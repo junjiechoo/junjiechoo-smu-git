@@ -11,12 +11,12 @@
 {% if enteredCourses %}
 <h3>Course Configuration</h3>
 </br>
-<a href=admin/create><button class=green style="height:75px;width:150px">Create Course</button></a>
+<a href=admin/create><button class="btn btn-warning"><b>Create Course</b></button></a>
 
 
 </br>
 </br>
-<table>
+<table class="table table-striped">
     <tr>
         <th>CourseID</th>
         <th>Course Name</th>
@@ -36,7 +36,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
             Available Learner(s):
-            <select name="learner" method="POST" action="/">
+            <select name="learner" method="POST" action="/" class="form-select">
             {% for learn in learner %}
                 {% if learn.getCoursesTaken() %}
                     {{ learn.getCoursesTaken().count(i.displayCourseId())}}
@@ -52,7 +52,7 @@
 
             <br>
             Available Trainer(s):
-            <select name="trainer" method="POST" action="/">
+            <select name="trainer" method="POST" action="/" class="form-select">
             {% for train in trainer %}
                 {{ train.getCoursesAssigned() }}
                 {% if train.getCoursesAssigned() %}

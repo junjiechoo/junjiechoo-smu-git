@@ -51,9 +51,9 @@
             <h4>{{courseStatus}}</h4>
          
             {% if ("⏳" in quizStatusList) %}
-                <h4>Pending ⏳</h4>
+            <div class="alert alert-warning" role="alert"><h4>Pending ⏳</h4></div>
             {% else %}
-                <h4>Completed ✅</h4>
+            <div class="alert alert-success" role="alert"><h4>Completed ✅</h4></div>
             {% endif %}
             
 
@@ -77,14 +77,16 @@
                 <div class="row" style="flex-wrap: unset;">
                     <div class="col" style="width: max-content;">
                         {% if score %}
-                            <p>{{ score.getScorePerc() }}</p>
-                            
                             {% if score.getScorePerc() >= 70 %}
-                                {% set quizStatus = "Completed!" %}
-                                <h4><small>{{quizStatus}}✅</small></h4>
+                                {% set quizStatus = "Section Completed! " %}
+                                <div class="alert alert-success" role="alert">
+                                <h5><small>{{quizStatus}}✅</small></h5>
+                                </div>
                             {% else %}
-                                {% set quizStatus = "Not Complete!" %}
-                                <h4><small>{{quizStatus}}❌</small></h4>
+                                {% set quizStatus = "Section Not Complete! " %}
+                                <div class="alert alert-danger" role="alert">
+                                <h5><small>{{quizStatus}}❌</small></h5>
+                                </div>
                             {% endif %}
                         {% endif %}
 
@@ -169,7 +171,6 @@
                                         {% endif %}
                                     </div>
 
-                                    {{lesson.getLessonId()}}
 
 
                                 </div>

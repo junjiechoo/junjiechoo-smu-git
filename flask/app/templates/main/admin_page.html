@@ -5,7 +5,7 @@
 <!-- what is the diff between className and courseName -->
     {% if enteredCreateQuiz %}
         {% if assignedClasses.count() > 0 %}
-            <table>
+            <table class="table table-striped">
                 <tr>
                     <th>CourseId</th>
                     <th>ClassId</th>
@@ -19,16 +19,16 @@
                         <td>{{class.numAvailableSeats}}</td>
 
                         {% if class.lessonIdList == None %}
-                            <td>to add quizzes, you need to have at least one lesson for this class</td>
+                            <td><div class="alert alert-danger" role="alert">To add quizzes, you need to have at least one lesson for this class</div></td>
                         {% else %}
                         <!-- add logic to check if a quiz has been created for the lesson -->
                             <td>
                                 {% for lesson in class.lessonIdList %}
                                     {% if lesson[1:-1] in lessonsWithoutQuiz %}
-                                        you have a quiz for this lesson {{lesson[1:-1]}} <br>
+                                    <div class="alert alert-info" role="alert">You have a quiz for this lesson {{lesson[1:-1]}} </div><br>
                                     {% else %}
                                     {{lesson[1:-1]}}
-                                    <button onclick="createQuiz('{{class.courseId}}', '{{class.classId}}', {{lesson}})">Create Quiz</button>
+                                    <button class="btn-sm btn-primary" onclick="createQuiz('{{class.courseId}}', '{{class.classId}}', {{lesson}})">Create Quiz</button>
                                     <br>
                                     {% endif %}
                                 {% endfor %}

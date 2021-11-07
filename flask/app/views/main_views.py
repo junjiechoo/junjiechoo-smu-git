@@ -1,6 +1,6 @@
 # Copyright 2014 SolidBuilds.com. All rights reserved
 #
-# Authors: Ling Thio <ling.thio@gmail.com>
+
 
 import xml.dom.minidom
 from flask import Blueprint, redirect, render_template
@@ -239,7 +239,7 @@ def admin_create_course():
 @main_blueprint.route('/trainer')
 def trainer_page():
     trainer = Trainer.query.filter_by(trainerId='T001')
-    return render_template('main/admin_page.html', trainer=trainer)
+    return render_template('main/trainer.html', trainer=trainer)
 
 
 @main_blueprint.route('/trainer/quizzes')

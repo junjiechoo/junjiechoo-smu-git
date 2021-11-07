@@ -18,17 +18,17 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <br>
         <label for="name">Course ID (5 Characters): </label>
-        <input type="text" id="id" name="id" required minlength="5" maxlength="5" size="10">  
+        <input type="text" id="id" name="id" class="form-control" required minlength="5" maxlength="5" size="10">  
         <br>
         <label for="name">Course Name: </label>
-        <input type="text" id="name" name="name" required minlength="5" maxlength="100" size="10">  
+        <input type="text" id="name" name="name" class="form-control" required minlength="5" maxlength="100" size="10">  
         <br>
         <label for="name">PreRequisite(s): </label>
-        <input type="text" id="prereq" name="prereq" minlength="5" maxlength="100" size="10">  
+        <input type="text" id="prereq" class="form-control" name="prereq" minlength="5" maxlength="100" size="10">  
         <br>
         <br>
         <br>
-        <input type="submit" value="Create Course" class="btn btn-secondary">
+        <input type="submit" value="Create Course" class="btn btn-warning">
         </form>
  
 </div>

@@ -13,10 +13,7 @@
         </figcaption>
     </figure>
 
-    <p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
-    <p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
-    <p><a href={{ url_for('main.home_page') }}>{%trans%}Home Page{%endtrans%}</a> (accessible to anyone)</p>
-    <p><a href={{ url_for('main.learner_page') }}>{%trans%}Member Page{%endtrans%}</a> (login_required: member@example.com / Password1)</p>
-    <p><a href={{ url_for('main.admin_page') }}>{%trans%}Admin Page{%endtrans%}</a> (roles_required: admin@example.com / Password1)</p>
-    <p><a href={{ url_for('user.logout') }}>{%trans%}Sign out{%endtrans%}</a></p>
+
+    <center><p style="margin-top: 50px;"><a class="btn btn-warning" href={{ url_for('main.admin_page') }}><b>{%trans%}Admin Page{%endtrans%}</b></a> <br><p>(roles_required: admin@example.com / Password1)</p></p></center>
+    
 {% endblock %}

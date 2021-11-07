@@ -7,10 +7,10 @@
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
 <!-- data population for enrolment -->
-<h5>Welcome <span style="color: blue; font-weight: bold;">{{learner[0].getLearnerName()}}</span></h5>
+<h3>Welcome <span style="color: blue; font-weight: bold;">{{learner[0].getLearnerName()}}</span></h3>
 
 {% if enteredEnrolment %}
-<h3>Course Applications</h3>
+<h5>Course Applications</h5>
     {% if enrolments != None %}
         <table class="table table-striped">
             <tr>
@@ -39,7 +39,7 @@
         <p>you have not applied for any course</p>
     {% endif %}
 <br><br>
-<h3>Courses Enrolled</h3>
+<h5>Courses Enrolled</h5>
     {% if enrolments != None %}
         <table class="table table-striped">
             <tr>
@@ -86,7 +86,6 @@
 
 
 {% if enteredCourses %}
-<h3>Courses</h3>
 <table class="table table-striped">
     <tr>
         <th>CourseID</th>
