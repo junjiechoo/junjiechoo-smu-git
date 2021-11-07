@@ -1,0 +1,81 @@
+
+{% extends "layout.html" %}
+
+<h2>{%trans%}Learner's Page{%endtrans%}</h2>
+
+{% block content %}
+
+
+
+<!-- data population for courses -->
+{% if enteredCourses %}
+<h3>Course Configuration</h3>
+</br>
+<a href=admin/create><button class=green style="height:75px;width:150px">Create Course</button></a>
+
+
+</br>
+</br>
+<table>
+    <tr>
+        <th>CourseID</th>
+        <th>Course Name</th>
+        <th>Assign Courses</th>
+    </tr>
+
+    {% for i in courses %}
+    <tr>
+        <td>{{i.displayCourseId()}}</td>
+        <td>
+            {{i.displayCourseName()}}
+        </td>
+  
+
+        <td>
+            <form action="/admin/courses/{{i.displayCourseId()}}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            Available Learner(s):
+            <select name="learner" method="POST" action="/">
+            {% for learn in learner %}
+                {% if learn.getCoursesTaken() %}
+                    {{ learn.getCoursesTaken().count(i.displayCourseId())}}
+                    {% if learn.getCoursesTaken().count(i.displayCourseId()) == 0 %}
+                        No available trainers
+                    {% else %}
+                        <option value="{{learn.learnerId}}" SELECTED>{{learn.learnerId}}</option>"
+
+                    {% endif %}
+                {% endif %}    
+            {% endfor %} 
+            </select>
+
+            <br>
+            Available Trainer(s):
+            <select name="trainer" method="POST" action="/">
+            {% for train in trainer %}
+                {{ train.getCoursesAssigned() }}
+                {% if train.getCoursesAssigned() %}
+                    {% if train.getCoursesAssigned().count(i.displayCourseId()) == 0 %}
+                            <option value="{{train.trainerId}}" SELECTED>{{train.trainerId}}</option>"
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </select>    
+
+            <br>
+            <input type="submit" value="Assign" class="btn btn-secondary">
+            </form>
+        </td>
+       
+        
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<script>
+
+   
+</script>
+{% endblock %}

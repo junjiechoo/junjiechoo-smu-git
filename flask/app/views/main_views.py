@@ -52,34 +52,6 @@ def courses_page():
 # for HR to assign trainer and learners to a course
 
 
-@main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
-def course_id(id):
-    learner = request.form.get('learner')
-    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
-    learner_to_update = Learner.query.get(learner_to_update.learnerId)
-
-    trainer = request.form.get('trainer')
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-
-    print(learner_to_update.enrolledCourses)
-    learner_to_update.enrolledCourses.append(id)
-    trainer_to_update.coursesAssigned.append(id)
-    db.session.commit()
-
-    return render_template('main/learner.html')
-
-@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
-def coursewithdraw_id(id):
-    trainer = request.form.get('trainer')
-    print(trainer)
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-    trainer_to_update.coursesAssigned.remove(id)
-    db.session.commit()
-
-    return render_template('main/withdrawl_page.html', trainer=trainer, courseid = id)
-
 
 # to enrol into a course
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
@@ -116,6 +88,20 @@ def applicationInfo(userInfo):
     # commit row insert/delete to make change visible to db
     db.session.commit()
     return('trying to do this part now')
+
+@main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
+def coursewithdraw_id(id):
+    trainer = request.form.get('trainer')
+    print(trainer)
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+    trainer_to_update.coursesAssigned.remove(id)
+    db.session.commit()
+
+    return render_template('main/withdrawl_page.html', trainer=trainer, courseid = id)
+
+
+
 
 @main_blueprint.route('/trainer')
 def trainer_page():
@@ -249,9 +235,49 @@ def create_score():
 # IGNORE ALL BELOW FIRST
 # The Admin page is accessible to users with the 'admin' role
 @main_blueprint.route('/admin')
-@roles_required('admin')  # Limits access to users with the 'admin' role
 def admin_page():
-    return render_template('main/admin_page.html')
+    courses = Course.query.all()
+    learner = Learner.query.all()
+    trainer = Trainer.query.all()
+    return render_template('main/admin_courses.html', courses=courses, learner=learner, trainer=trainer,  enteredCourses=True)
+
+@main_blueprint.route('/admin/create', methods=['POST', 'GET'])
+def admin_create():
+    return render_template('main/admin_create_course.html')
+
+@main_blueprint.route('/admin/create/course', methods=['POST', 'GET'])
+def admin_create_course():
+    name = request.form.get('name')
+    id = request.form.get('id')
+    prereq = request.form.get('prereq')
+    course = Course()
+    course.setCourseId(id)
+    course.setCourseName(name)
+    course.setPreReq(prereq)
+    course.setRetire(False)
+
+    db.session.add(course)
+    db.session.commit()
+
+    return redirect(url_for('main.admin_page'))
+
+@main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
+def course_id(id):
+    learner = request.form.get('learner')
+    learner_to_update = Learner.query.filter_by(learnerId=learner).first()
+    learner_to_update = Learner.query.get(learner_to_update.learnerId)
+
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
+    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
+
+    print(learner_to_update.enrolledCourses)
+    learner_to_update.enrolledCourses.append(id)
+    trainer_to_update.coursesAssigned.append(id)
+    db.session.commit()
+
+    return render_template('main/learner.html')
+
 
 
 @main_blueprint.route('/main/profile', methods=['GET', 'POST'])

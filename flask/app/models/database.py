@@ -18,6 +18,15 @@ class Course(db.Model):
     prereq = db.Column(ARRAY(String(length=8)))
     retireStatus = db.Column(Boolean, nullable=False)
 
+    def setCourseId(self, courseid):
+        self.courseId=courseid
+    def setCourseName(self, coursename):
+        self.courseName = coursename
+    def setPreReq(self,prereq):
+        self.prereq=prereq
+    def setRetire(self, status):
+        self.retireStatus=status    
+
     def displayCourseId(self):
         return self.courseId
 
