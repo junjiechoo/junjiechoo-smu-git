@@ -120,6 +120,9 @@ class Class(db.Model):
 
     def getCourseId(self):
         return self.courseId
+    
+    def getStartendDate(self):
+        return self.startDate, self.endDate
 
 
 class Forum(db.Model):
@@ -180,6 +183,10 @@ class Enrolment(db.Model):
             if record.completionStatus == "completed":
                 completed_courses.append(record.courseId)
         return completed_courses
+
+    def getClassStartEndDate(self, classId):
+        classTimings = Class.query.filter_by(classId=classId)
+        return classTimings[0].getStartendDate()
 
 
 class Lesson(db.Model):

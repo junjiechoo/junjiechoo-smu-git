@@ -48,7 +48,12 @@ def learner_page():
 def enrolment_page():
     enrolments = db.session.query(Enrolment, Course).join(
         Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L003')
+    if enrolments.count() == 0:
+        enrolments = None
+
+    
     learner = Learner.query.filter_by(learnerId='L003')
+    
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
 
@@ -63,7 +68,7 @@ def courses_page():
 # for HR to assign trainer and learners to a course
 
 
-@main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
+@main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
     learner = request.form.get('learner')
     learner_to_update = Learner.query.filter_by(learnerName=learner).first()
@@ -108,6 +113,8 @@ def applicationInfo(userInfo):
     latest_enrolment = Enrolment.query.order_by(
         Enrolment.enrolmentId.desc()).first()
 
+    learner = Learner.query.filter_by(learnerId=userInfo['learnerId'])
+
     if latest_enrolment == None:
         latest_enrolment_id = 'E1'
     else:
@@ -123,10 +130,11 @@ def applicationInfo(userInfo):
 
     # delete test row
     # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
+    # DELETE FROM spm."Enrolment" WHERE "enrolmentId" = 'E6';
 
-    # commit row insert/delete to make change visible to db
     db.session.commit()
-    return('trying to do this part now')
+    print("application successful")
+    return f"{learner[0].getLearnerName()} has applied for course {userInfo['courseId']}"
 
 @main_blueprint.route('/trainer')
 def trainer_page():
