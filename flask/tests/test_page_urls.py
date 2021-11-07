@@ -100,6 +100,8 @@ def test_quiz_submission(client, session):
     assert(response_quiz_created.data == b'quiz created')
 
 
+
+
 # Just leave for reference for now, but must delete later
     # print(quiz1)
     # assert quiz1.quizId == "q1"
