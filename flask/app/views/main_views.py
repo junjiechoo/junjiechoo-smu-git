@@ -9,6 +9,7 @@ from flask import json
 from flask_user import current_user, login_required, roles_required
 from flask.json import jsonify
 from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.expression import true
 from sqlalchemy.sql.sqltypes import NullType
 
 from app import db
@@ -36,8 +37,13 @@ def learner_page():
 @main_blueprint.route('/learner/enrolment')
 def enrolment_page():
     enrolments = db.session.query(Enrolment, Course).join(
-        Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L003')
-    learner = Learner.query.filter_by(learnerId='L003')
+        Course, Course.courseId == Enrolment.courseId).filter(Enrolment.learnerId == 'L002')
+    if enrolments.count() == 0:
+        enrolments = None
+
+    
+    learner = Learner.query.filter_by(learnerId='L002')
+    
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
 
@@ -57,7 +63,7 @@ def courses_page():
 # can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
 
 
-@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
+@main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET', 'POST'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
     print()
@@ -68,6 +74,8 @@ def applicationInfo(userInfo):
     # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
     latest_enrolment = Enrolment.query.order_by(
         Enrolment.enrolmentId.desc()).first()
+
+    learner = Learner.query.filter_by(learnerId=userInfo['learnerId'])
 
     if latest_enrolment == None:
         latest_enrolment_id = 'E1'
@@ -84,10 +92,12 @@ def applicationInfo(userInfo):
 
     # delete test row
     # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
+    # DELETE FROM spm."Enrolment" WHERE "enrolmentId" = 'E6';
 
-    # commit row insert/delete to make change visible to db
     db.session.commit()
-    return('trying to do this part now')
+    print("application successful")
+    return f"{learner[0].getLearnerName()} has applied for course {userInfo['courseId']}"
+    
 
 @main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
 def coursewithdraw_id(id):

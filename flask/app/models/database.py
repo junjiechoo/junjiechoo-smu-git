@@ -127,6 +127,8 @@ class Class(db.Model):
     Course = relationship('Course')
     Trainer = relationship('Trainer')
 
+    def getStartendDate(self):
+        return self.startDate, self.endDate
 
 class Forum(db.Model):
     __tablename__ = 'Forum'
@@ -187,6 +189,9 @@ class Enrolment(db.Model):
                 completed_courses.append(record.courseId)
         return completed_courses
 
+    def getClassStartEndDate(self, classId):
+        classTimings = Class.query.filter_by(classId=classId)
+        return classTimings[0].getStartendDate()
 
 class Lesson(db.Model):
     __tablename__ = 'Lesson'

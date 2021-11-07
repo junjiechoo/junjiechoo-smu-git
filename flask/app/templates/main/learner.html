@@ -4,37 +4,60 @@
 
 {% block content %}
 <!-- data population for enrolment -->
-<h5>Wel Fking Come {{learner[0].getLearnerName()}}</h5>
+<h5>Welcome {{learner[0].getLearnerName()}}</h5>
 
 {% if enteredEnrolment %}
-<h3>Enrolment</h3>
-<!-- {% for i in enrolment %}
-            {% for j in i.getCompletedCourses('L001') %}
-                <p>{{j}}</p>
-            {% endfor %}
-            <p>{{i.getApprovalStatus()}}</p>
-        {% endfor %} -->
-<table>
-    <tr>
-        <th>CourseID</th>
-        <th>Course Name</th>
-        <th>Class ID</th>
-        <th>Approval Status</th>
-        <th>Completion Status</th>
-        <th>Number of Lessons Completed</th>
-    </tr>
+<h3>Course Applications</h3>
+    {% if enrolments != None %}
+        <table>
+            <tr>
+                <th>CourseID</th>
+                <th>Course Name</th>
+                <th>Class ID</th>
+                <th>Approval Status</th>
+                <th>Completion Status</th>
+                <th>Number of Lessons Completed</th>
+            </tr>
 
-    {% for i in enrolments %}
-    <tr>
-        <td>{{i[0].getCourseId()}}</td>
-        <td>{{i[1].displayCourseName()}}</td>
-        <td>{{i[0].getClassId()}}</td>
-        <td>{{i[0].getApprovalStatus()}}</td>
-        <td>{{i[0].getCompletionStatus()}}</td>
-        <td>{{i[0].getNumLessonCompleted()}}</td>
-    </tr>
-    {% endfor %}
-</table>
+            {% for i in enrolments %}
+            <tr>
+                <td>{{i[0].getCourseId()}}</td>
+                <td>{{i[1].displayCourseName()}}</td>
+                <td>{{i[0].getClassId()}}</td>
+                <td>{{i[0].getApprovalStatus()}}</td>
+                <td>{{i[0].getCompletionStatus()}}</td>
+                <td>{{i[0].getNumLessonCompleted()}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>you have not applied for any course</p>
+    {% endif %}
+<br><br>
+<h3>Courses Enrolled</h3>
+    {% if enrolments != None %}
+        <table>
+            <tr>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Class ID</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+            <tr>
+                {% for i in enrolments %}
+                <td>{{i[0].getCourseId()}}</td>
+                <td>{{i[1].displayCourseName()}}</td>
+                <td>{{i[0].getClassId()}}</td>
+                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
+                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
+                
+                {% endfor %}
+            </tr>
+        </table>
+    {% else %}
+        <p>you have not enrolled into and course</p>
+    {% endif %}
 {% endif %}
 
 <!-- data population for courses -->
@@ -79,6 +102,12 @@
                 {% endif %}
             {% endfor %}
 
+            {% for courseId in learner[0].getCoursesTaken() %}
+                {% if i.displayCourseId() ==  courseId %}
+                    {% set alreadyApplied.value = 1 %}
+                {% endif %}
+            {% endfor %}
+
             {% if alreadyApplied.value == 1 %}
                 you have already applied
             {% elif i.getPrerequisite() == None%}
@@ -117,6 +146,7 @@
     </tr>
     {% endfor %}
 </table>
+
 {% endif %}
 
 <script>
@@ -128,7 +158,7 @@
         request.open("GET", `/learner/courses/${userInfo}`);
         request.onload = () => {
             const flaskMessage = request.responseText;
-            console.log(flaskMessage);
+            document.getElementById(courseId).innerHTML = `<b>${flaskMessage}</b>`;
         }
         request.send();
     }
