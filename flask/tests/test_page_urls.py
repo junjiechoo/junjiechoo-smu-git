@@ -6,14 +6,73 @@ from __future__ import print_function  # Use print() instead of print
 from flask import url_for
 from app.models.database import *
 from app.views.main_views import *
+from .conftest import captured_templates
 import json
+
 
 def test_home_page(client, session):
     # Visit home page
     response = client.get(url_for('main.home_page'), follow_redirects=True)
     assert response.status_code == 200
 
-def test_success_quiz_submission(client, session):
+
+def test_course_home(client, session, captured_templates):
+    response = client.get("/learner/courses", follow_redirects=True)
+
+    template, context = captured_templates[0]
+
+    assert template.name == "main/learner.html"
+
+    assert "courses" in context
+    assert "learner" in context
+    assert "trainer" in context
+    assert "enrolment" in context
+    assert "enteredCourses" in context
+
+    assert isinstance(context["courses"][0], Course)
+    assert isinstance(context["learner"][0], Learner)
+    assert isinstance(context["trainer"][0], Trainer)
+    assert isinstance(context["enrolment"][0], Enrolment)
+    assert context["enteredCourses"] == True
+
+
+def test_course_apply(client, session):
+
+    userInfo = {
+        "courseId": "IS113",
+        "learnerId": "L003",
+    }
+
+    userInfo = json.dumps(userInfo)
+
+    response = client.post(
+        "/learner/courses",
+        data=userInfo,
+        headers={"Content-Type": "application/json"},
+        follow_redirects=True
+    )
+
+    assert response.json['code'] == 201
+
+
+def test_quiz_home(client, session, captured_templates):
+    response = client.get("/trainer/quizzes", follow_redirects=True)
+
+    template, context = captured_templates[1]
+
+    assert template.name == "main/admin_page.html"
+
+    assert "assignedClasses" in context
+    assert "lessonsWithoutQuiz" in context
+    assert "enteredCreateQuiz" in context
+
+    assert isinstance(context["assignedClasses"][0], Class)
+    assert list(context["lessonsWithoutQuiz"].keys())[0] == "LS001"
+    assert list(context["lessonsWithoutQuiz"].values())[0] == "C001"
+    assert context["enteredCreateQuiz"] == True
+
+
+def test_quiz_submission(client, session):
 
     data = {
         "csrf_token": "IjJiZjNkZWEwYjQ4MGM0ODA3NjliNWE4MjhhMzBlOTM5ZjQyMDczNTci.YXQeJg.k9HPT8_Sm2Lghf23UMJT-xB6pm8",
