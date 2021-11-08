@@ -22,7 +22,7 @@ import subprocess
 import os
 
 s3 = boto3.client('s3',
-                  aws_access_key_id='AKIA45COZBM2ANKUEJ4L', aws_secret_access_key='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'
+                  aws_access_key_id='', aws_secret_access_key=''
                   )
 
 BUCKET_NAME = 'keithprojectbucket'
@@ -338,16 +338,16 @@ def upload_materials():
     newFileLink = ""
     lessonId = ""
 
-    last_materialId = Material.query.order_by(
-        Material.materialId.desc()).first()
+    last_materialId = Material.query.order_by(Material.materialId.desc()).first()
+    list_materialId = Material.query.order_by(Material.materialId.desc()).all()
 
     if last_materialId == None:
         last_materialId = 'M001'
     else:
         last_materialId = last_materialId.materialId
         materialId_alphabet = last_materialId[0]
-        material_number = int(last_materialId[1:])
-        material_number += 1
+        numbers = [int(mid[1:]) for mid in list_materialId]
+        material_number = max(numbers) + 1
         newMaterialId = materialId_alphabet + str(material_number)
 
     newMaterialName = request.form["name_input"]
