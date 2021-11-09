@@ -106,6 +106,15 @@ class Trainer(db.Model):
     def getCoursesAssigned(self):
         return self.coursesAssigned
 
+    def setTrainerID(self, id):
+        self.trainerId = id
+
+    def setTrainerName(self, name):
+        self.trainerName = name
+    
+    def setCoursesAssigned(self, courses):
+        self.coursesAssigned = courses
+
 
 class Class(db.Model):
     __tablename__ = 'Class'
