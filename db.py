@@ -1,4 +1,4 @@
-# coding: utf-8
+yea got# coding: utf-8
 from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, MetaData, String, Time
 from sqlalchemy.dialects.postgresql.ranges import INT4RANGE
 from sqlalchemy.orm import relationship
