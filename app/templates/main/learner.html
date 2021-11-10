@@ -131,12 +131,6 @@
                 {% endif %}
             {% endfor %}
 
-            {% for courseId in learner[0].getCoursesTaken() %}
-                {% if i.displayCourseId() ==  courseId %}
-                    {% set alreadyApplied.value = 1 %}
-                {% endif %}
-            {% endfor %}
-
             {% if alreadyApplied.value == 1 %}
             <div class="alert alert-danger" role="alert">You have already applied!</div>
             {% elif i.getPrerequisite() == None%}
