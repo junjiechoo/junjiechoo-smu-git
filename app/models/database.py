@@ -47,12 +47,18 @@ class Employee(db.Model):
     email = db.Column(String(144))
     contactNo = db.Column(Integer)
 
+    def __init__(self, eid, email, contactno):
+        self.employeeId = eid
+        self.email = email
+        self.contactNo = contactno
+
     def json(self):
         return {
             "employeeId": self.employeeId,
             "email": self.email,
             "contactNo": self.contactNo
         }
+
 
 # Cheng Hong
 class HumanResource(Employee):
@@ -66,6 +72,9 @@ class HumanResource(Employee):
 
     def getHrName(self):
         return self.HRName
+
+    def setHrName(self, name):
+        self.HRName = name
 
 # Junjie
 class Learner(Employee):
