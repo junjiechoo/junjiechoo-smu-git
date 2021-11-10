@@ -80,3 +80,13 @@ def captured_templates(app):
         yield recorded
     finally:
         template_rendered.disconnect(record, app)
+
+
+@pytest.fixture
+def quiz():
+    return Quiz("Q1", "Quiz 1", True, "C001", [{"test":"test"}])
+
+
+@pytest.fixture
+def score():
+    return Score("Q1", "L003", True, 100)
