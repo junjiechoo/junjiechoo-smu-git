@@ -181,7 +181,7 @@ class Class(db.Model):
     Course = relationship('Course')
     Trainer = relationship('Trainer')
 
-    def __init__(self,classId,className,noStudents,courseId,trainerId,startDate,endDate,startTime,endTime,numAvailableSeats,enrolmentStart,enrolmentEnd,lessonIdList):
+    def __init__(self, classId, className, noStudents, courseId, trainerId, startDate, endDate, startTime, endTime, numAvailableSeats, enrolmentStart, enrolmentEnd, lessonIdList):
         self.classId = classId
         self.className = className
         self.noStudents = noStudents
