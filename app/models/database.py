@@ -301,6 +301,9 @@ class Lesson(db.Model):
 
     def getMaterialIdList(self):
         return self.materialIdList
+    
+    def getCourseId(self):
+        return self.courseId
 
 # Junjie
 class LessonStatus(db.Model):
