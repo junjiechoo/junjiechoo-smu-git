@@ -142,12 +142,10 @@ class Trainer(db.Model):
     trainerName = db.Column(String(144), nullable=False)
     coursesAssigned = db.Column(ARRAY(String(length=8)))
 
-    def __init__(self, trainerId, trainerName):
-        self.quizId = quizId
-        self.quizName = quizName
-        self.graded = graded
-        self.classId = classId
-        self.quizContent = quizContent
+    def __init__(self, trainerId, trainerName, coursesAssigned):
+        self.trainerId =trainerId
+        self.trainerName = trainerName
+        self.coursesAssigned = coursesAssigned
 
     def getTrainerId(self):
         return self.trainerId
