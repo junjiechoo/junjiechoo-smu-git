@@ -52,7 +52,9 @@ def enrolment_page():
         enrolments = None
 
     learner = Learner.query.filter_by(learnerId='L003')
-
+    print("-----")
+    print(enrolments[0])
+    print(learner[0])
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
 
@@ -118,10 +120,6 @@ def coursewithdraw_id(id):
 
     return render_template('main/withdrawl_page.html', trainer=trainer, courseid=id)
 
-
-# to enrol into a course
-# can only use GET for now cause POST causes CSRF token missing, something to do with flask-wtf
-
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
@@ -130,23 +128,10 @@ def applicationInfo(userInfo):
         f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}")
     print('------------------')
 
-    # use this two lines to add a new enrolment (have to edit to dynamically create new enrolment id, filter_by last row then +1?)
-    latest_enrolment = Enrolment.query.order_by(
-        Enrolment.enrolmentId.desc()).first()
-
     learner = Learner.query.filter_by(learnerId=userInfo['learnerId'])
 
-    if latest_enrolment == None:
-        latest_enrolment_id = 'E1'
-    else:
-        latest_enrolment_id = latest_enrolment.enrolmentId
-        enrolment_letter = latest_enrolment_id[0]
-        enrolment_number = int(latest_enrolment_id[1:])
-        enrolment_number += 1
-        latest_enrolment_id = enrolment_letter + str(enrolment_number)
-
     newEnrolment = Enrolment(
-        latest_enrolment_id, userInfo['courseId'], userInfo['learnerId'], 'pending', 'pending approval', 0, 'C001')
+        userInfo['courseId'], userInfo['learnerId'], 'Approved', 'Approved', 0, 'C001')
     db.session.add(newEnrolment)
 
     # delete test row
@@ -178,6 +163,7 @@ def lesson_page():
             "score": score if score else None,
         }
         lesson_content.append(content)
+        print(course)
     return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 
 
@@ -208,7 +194,6 @@ def create_score():
             "data": "Score created"
         }
     ), 201
-
 
 # IGNORE ALL BELOW FIRST
 # The Admin page is accessible to users with the 'admin' role
@@ -334,6 +319,8 @@ def uploadmaterials_page():
     courses = Course.query.all()
     lessons = Lesson.query.order_by(Lesson.lessonId).all()
     materials = Material.query.all()
+    print(trainer)
+    print(materials)
     return render_template('main/upload_materials.html', trainer=trainer, courses=courses, lessons=lessons, materials=materials)
 
 

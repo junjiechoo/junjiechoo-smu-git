@@ -137,6 +137,7 @@ class Trainer(db.Model):
         self.coursesAssigned = courses
 
 
+
 class Class(db.Model):
     __tablename__ = 'Class'
 
@@ -176,7 +177,7 @@ class Forum(db.Model):
 class Enrolment(db.Model):
     __tablename__ = 'Enrolment'
 
-    enrolmentId = db.Column(String(8), primary_key=True)
+    enrolmentId = db.Column(String(8), primary_key=True, server_default=FetchedValue())
     courseId = db.Column(ForeignKey('Course.courseId', ondelete='CASCADE'), nullable=False)
     learnerId = db.Column(ForeignKey('Learner.learnerId', ondelete='CASCADE'), nullable=False)
     approvalStatus = db.Column(String(144), nullable=False)
@@ -188,8 +189,7 @@ class Enrolment(db.Model):
     Course = relationship('Course')
     Learner = relationship('Learner')
 
-    def __init__(self, enrolmentId, courseId, learnerId, approvalStatus, completionStatus, numLessonCompleted, classId):
-        self.enrolmentId = enrolmentId
+    def __init__(self, courseId, learnerId, approvalStatus, completionStatus, numLessonCompleted, classId):
         self.courseId = courseId
         self.learnerId = learnerId
         self.approvalStatus = approvalStatus
