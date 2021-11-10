@@ -89,6 +89,27 @@ class Learner(Employee):
     def getCoursesTaken(self):
         return self.coursesTaken
 
+    def getEnrolledCourses(self):
+        return self.enrolledCourses
+
+    def getCoursesApplied(self):
+        return self.coursesApplied
+
+    def setLearnerID(self, id):
+        self.learnerId = id
+
+    def setCoursesTaken(self, coursesTaken):
+        self.coursesTaken = coursesTaken
+
+    def setLearnerName(self, name):
+        self.learnerName = name
+
+    def setEnrolledCourses(self, enrolledCourses):
+        self.enrolledCourses = enrolledCourses
+
+    def setCoursesApplied(self, coursesApplied):
+        self.coursesApplied = coursesApplied
+
 
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
@@ -105,6 +126,15 @@ class Trainer(db.Model):
 
     def getCoursesAssigned(self):
         return self.coursesAssigned
+
+    def setTrainerID(self, id):
+        self.trainerId = id
+
+    def setTrainerName(self, name):
+        self.trainerName = name
+    
+    def setCoursesAssigned(self, courses):
+        self.coursesAssigned = courses
 
 
 
@@ -246,6 +276,24 @@ class LessonStatus(db.Model):
     learnerId = db.Column(String(8), primary_key=True)
     lessonId = db.Column(String(144), primary_key=True)
     completionStatus = db.Column(Boolean, nullable=False)
+
+    def getLessonId(self):
+        return self.lessonId
+
+    def getLearnerId(self):
+        return self.learnerId
+
+    def getCompletionStatus(self):
+        return self.completionStatus
+
+    def setCompletionStatus(self, status):
+        self.completionStatus = status
+
+    def setLessonId(self, lessonCode):
+        self.lessonId = lessonCode
+
+    def setCompletionStatus(self, status):
+        self.completionStatus = status
 
 
 class Material(db.Model):

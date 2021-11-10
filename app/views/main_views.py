@@ -87,28 +87,35 @@ def courses_page():
 @main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
     learner = request.form.get('learner')
-    learner_to_update = Learner.query.filter_by(learnerName=learner).first()
-    learner_to_update = Learner.query.get(learner_to_update.learnerId)
-
-    trainer = request.form.get('trainer')
-    trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-
-    print(learner_to_update.enrolledCourses)
-    learner_to_update.enrolledCourses.append(id)
-    trainer_to_update.coursesAssigned.append(id)
+    learner_to_update = Learner.query.filter_by(learnerId=learner).first()
+    learnerCourseRemove = learner_to_update.coursesApplied
+    learnerCourseRemove.remove(id)
+    learnerCourseEnrolled = learner_to_update.enrolledCourses
+    learnerCourseEnrolled.append(id)
+    learner_to_update.coursesApplied = learnerCourseRemove
     db.session.commit()
 
-    return render_template('main/learner.html')
+    learner_to_update.enrolledCourses = learnerCourseEnrolled
+    db.session.commit()
+
+    trainer = request.form.get('trainer')
+    trainer_to_update = Trainer.query.filter_by(trainerId=trainer).first()
+    coursesAssigned = trainer_to_update.coursesAssigned
+    trainer_to_update.coursesAssigned.append(id)
+    trainer_to_update.coursesAssigned = coursesAssigned
+    db.session.commit()
+
+    return redirect(url_for('main.admin_page'))
 
 
 @main_blueprint.route('/learner/courses/withdraw/<string:id>', methods=['POST', 'GET'])
 def coursewithdraw_id(id):
     trainer = request.form.get('trainer')
-    print(trainer)
     trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-    trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-    trainer_to_update.coursesAssigned.remove(id)
+    removeCourse = trainer_to_update.coursesAssigned
+    removeCourse.remove(id)
+
+    trainer_to_update.coursesAssigned = removeCourse
     db.session.commit()
 
     return render_template('main/withdrawl_page.html', trainer=trainer, courseid=id)
