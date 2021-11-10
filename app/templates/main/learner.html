@@ -1,0 +1,235 @@
+{% extends "layout.html" %}
+
+<h2>{%trans%}Learner's Page{%endtrans%}</h2>
+
+{% block content %}
+
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+<!-- data population for enrolment -->
+<h3>Welcome <span style="color: blue; font-weight: bold;">{{learner[0].getLearnerName()}}</span></h3>
+
+{% if enteredEnrolment %}
+<h5>Course Applications</h5>
+    {% if enrolments != None %}
+        <table class="table table-striped">
+            <tr>
+                <th>CourseID</th>
+                <th>Course Name</th>
+                <th>Class ID</th>
+                <th>Approval Status</th>
+                <th>Completion Status</th>
+                <th>Number of Lessons Completed</th>
+            </tr>
+
+            {% for i in enrolments %}
+                {% if i[0].getApprovalStatus == 'pending approval' %}
+                    <tr>
+                        <td>{{i[0].getCourseId()}}</td>
+                        <td>{{i[1].displayCourseName()}}</td>
+                        <td>{{i[0].getClassId()}}</td>
+                        <td>{{i[0].getApprovalStatus()}}</td>
+                        <td>{{i[0].getCompletionStatus()}}</td>
+                        <td>{{i[0].getNumLessonCompleted()}}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>you have not applied for any course</p>
+    {% endif %}
+<br><br>
+<h5>Courses Enrolled</h5>
+    {% if enrolments != None %}
+        <table class="table table-striped">
+            <tr>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Class ID</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+            <tr>
+                {% for i in enrolments %}
+                    {% if i[0].getApprovalStatus() == 'Approved' %}
+                        <td>{{i[0].getCourseId()}}</td>
+                        <td>{{i[1].displayCourseName()}}</td>
+                        <td>{{i[0].getClassId()}}</td>
+                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
+                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+    {% else %}
+        <p>you have not enrolled into and course</p>
+    {% endif %}
+{% endif %}
+
+<!-- data population for courses -->
+{% if courseAssigned %}
+    {% set assignedCourses = enrolledCourses[0].getEnrolledCourses() %}
+    <div class="row">
+    {% for course in assignedCourses %}
+            <div class="col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{course}}</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="#" class="btn btn-primary">View Course</a>
+                </div>
+              </div>
+            </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
+
+{% if enteredCourses %}
+<table class="table table-striped">
+    <tr>
+        <th>CourseID</th>
+        <th>Course Name</th>
+        <th>Prerequisites</th>
+        <th>Apply</th>
+        <th>Withdraw Courses</th>
+    </tr>
+
+    {% for i in courses %}
+    <tr>
+        <td>{{i.displayCourseId()}}</td>
+        <td>
+            {{i.displayCourseName()}}
+            <br>
+            {% if learner[0].getCoursesTaken()|length > 0 %}
+            {% if i.displayCourseId() in learner[0].getCoursesTaken() %}
+            <span class="badge bg-success">Completed</span>
+            {% endif %}
+            {% endif %}
+        </td>
+        <td>
+            {% if i.getPrerequisite() == None %}
+            No Prerequisites
+            {% else %}
+            {% for j in i.getPrerequisite() %}
+            <p>{{j}}</p>
+            {% endfor %}
+            {% endif %}
+
+        </td>
+        <td>
+            {% set alreadyApplied = namespace(value=0) %}
+            {% for application in enrolment %}
+            {% if application.getCourseId() == i.displayCourseId() %}
+            {% set alreadyApplied.value = 1 %}
+            {% endif %}
+            {% endfor %}
+
+            {% for courseId in learner[0].getCoursesTaken() %}
+                {% if i.displayCourseId() ==  courseId %}
+                    {% set alreadyApplied.value = 1 %}
+                {% endif %}
+            {% endfor %}
+
+            {% if alreadyApplied.value == 1 %}
+            <div class="alert alert-danger" role="alert">You have already applied!</div>
+            {% elif i.getPrerequisite() == None%}
+            <button class="btn-sm btn-warning"
+                onclick="checkEligibility('Nothing', '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
+                Eligibility</button>
+            {% else %}
+            <button class="btn-sm btn-warning"
+                onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
+                Eligibility</button>
+            {% endif %}
+            <div id="{{i.displayCourseId()}}"></div>
+
+        </td>
+
+       
+        <td>
+            <form action="/learner/courses/withdraw/{{i.displayCourseId()}}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                Enrolled Courses(s):
+                <select name="trainer" method="POST" action="/" class="form-select">
+                    {% for train in trainer %}
+                    {% if train.getCoursesAssigned() != None %}
+                    {% if train.getCoursesAssigned().count(i.displayCourseId()) == 1 %}
+                    <option value="{{train.trainerName}}" SELECTED>{{train.trainerName}}</option>"
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <br>
+                <input type="submit" value="Withdraw" class="btn btn-danger">
+            </form>
+        </td>
+
+    </tr>
+    {% endfor %}
+</table>
+
+{% endif %}
+
+<script>
+
+    var csrf_token = document.getElementsByName("csrf_token")[0].value
+
+    async function postCourse(url = '', data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            // credentials: 'include', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+                "X-CSRF-Token": csrf_token,
+            },
+            // redirect: 'follow', // manual, *follow, error
+            // referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    function applyCourse(courseId, learnerId) {
+        var userInfo = JSON.stringify({ 'courseId': courseId, 'learnerId': learnerId });
+        console.log('applying for course now');
+        const request = new XMLHttpRequest()
+        request.open("GET", `/learner/courses/${userInfo}`);
+        request.onload = () => {
+            const flaskMessage = request.responseText;
+            document.getElementById(courseId).innerHTML = `<b>${flaskMessage}</b>`;
+        }
+        request.send();
+    }
+
+    function checkEligibility(prereq, courseId, coursesCompleted, learnerId) {
+        if (prereq == "Nothing" && coursesCompleted.indexOf(courseId) > -1) {
+            document.getElementById(courseId).innerHTML = "You have completed this course";
+        } else if (prereq == "Nothing" && coursesCompleted.indexOf(courseId) == -1) {
+            document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button onclick="applyCourse('${courseId}', '${learnerId}')">Apply</button>`;
+        } else {
+            var remainingCourses = '';
+            for (course of coursesCompleted) {
+                var index = prereq.indexOf(course);
+                if (index > -1) {
+                    prereq.splice(index, 1);
+                }
+            }
+            if (prereq.length > 0) {
+                for (course of prereq) {
+                    console.log(course);
+                    remainingCourses += course + ", ";
+                }
+                remainingCourses = remainingCourses.slice(0, -2);
+                document.getElementById(courseId).innerHTML = "you need the following courses: " + remainingCourses;
+            } else {
+                // but this one pass a whole div tag to flask
+                document.getElementById(courseId).innerHTML = "You Are Eligible!" + `<button onclick="applyCourse('${courseId}', '${learnerId}')">Apply</button>`;
+            }
+        }
+    }
+</script>
+{% endblock %}

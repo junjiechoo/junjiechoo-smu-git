@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+
+<h2>{%trans%}Upload Course Materials{%endtrans%}</h2>
+{% block content %}
+<h3 class="pt-3 pb-3">Upload Course Materials</h3>
+<div class="d-flex row" id="wrapper">
+    <div class="col-3">
+        <form action="/courses/upload-materials/results" method="POST" id="form" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-group pb-3">
+                <label for="course_select">Select Course</label>
+                <select name="course_select" class="form-control" id="course_select">
+                    <option selected disabled>Select</option>
+                    {% if trainer.getCoursesAssigned() != None %}
+                    {% for c in trainer.getCoursesAssigned() %}
+                    <option value={{c}}>{{c}}</option>
+                    {% endfor %}
+                    {% else %}
+                    <p>you are not assigned to any class</p>
+                    {% endif %}
+                </select>
+            </div>
+
+            {% if trainer.getCoursesAssigned() != None %}
+            {% for c in trainer.getCoursesAssigned() %}
+            <div class="form-group pb-3 lesson_select_div" id="{{c}}">
+                <label for="lesson_select">Select Lesson</label>
+                <select name="{{c}}_lesson_select" class="form-control" id="{{c}}_lesson_select">
+                    <option selected disabled>Select</option>
+                    {% for l in lessons %}
+                    {% if l.getCourseId() == c %}
+                    <option value={{l.getLessonId()}}>{{l.getLessonId()}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>you are not assigned to any class</p>
+            {% endif %}
+
+            <div class="form-group pb-3" id="type_select_div">
+                <label for="type_select">Select Material Type</label>
+                <select name="type_select" class="form-control" id="type_select">
+                    <option selected disabled>Select</option>
+                    <option value="document">Document</option>
+                    <option value="video">Video</option>
+                    <option value="hyperlink">Hyperlink</option>
+                </select>
+            </div>
+
+            <div class="form-group pb-3" id="doc_upload_div">
+                <label for="doc_upload">Upload Document</label><br>
+                <input name="doc_upload" type="file" class="form-control-file" id="doc_upload" accept=".docx, .ppt, .pdf">
+            </div>
+
+            <div class="form-group pb-3" id="vid_upload_div">
+                <label for="vid_upload">Upload Video</label><br>
+                <input name="vid_upload" type="file" class="form-control-file" id="vid_upload" accept=".mp4, .mpeg, .avi">
+            </div>
+
+
+            <div class="form-group pb-3" id="file_text_div">
+                <label for="file_text">HyperLink</label><br>
+                <input name="file_text" type="url" class="form-control" id="file_text">
+            </div>
+
+            <div class="form-group pb-3" id="name_input_div">
+                <label for="name_input">Name</label>
+                <input name="name_input" type="text" class="form-control" id="name_input">
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-2" id="form_submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    var lesson_select_divs = document.getElementsByClassName("lesson_select_div");
+    var type_select_div = document.getElementById("type_select_div");
+    var doc_upload_div = document.getElementById("doc_upload_div");
+    var vid_upload_div = document.getElementById("vid_upload_div");
+    var file_text_div = document.getElementById("file_text_div");
+    var name_input_div = document.getElementById("name_input_div");
+    var submit_button = document.getElementById("form_submit");
+
+
+    for (i = 0; i < lesson_select_divs.length; i++){
+        hide(lesson_select_divs[i]);
+    }
+    hide(type_select_div);
+    hide(doc_upload_div);
+    hide(vid_upload_div);
+    hide(file_text_div);
+    hide(name_input_div);
+    hide(submit_button);
+    submit_button.disabled = true;
+    
+    var course_select = document.getElementById("course_select");
+    var type_select = document.getElementById("type_select");
+    var doc_upload = document.getElementById("doc_upload");
+    var vid_upload = document.getElementById("vid_upload");
+    var file_text = document.getElementById("file_text");
+    var name_input = document.getElementById("name_input");
+
+    course_select.addEventListener("change", function ()  {
+
+        var lesson_select = document.getElementById(course_select.value+'_lesson_select');
+
+        for (i = 0; i < lesson_select_divs.length; i++){
+            if (lesson_select_divs[i].id == course_select.value) {
+                show(lesson_select_divs[i]);
+                clear_select(lesson_select);
+                hide(type_select_div);
+                clear_select(type_select);
+                hide(doc_upload_div);
+                clear_input(doc_upload);
+                hide(vid_upload_div);
+                clear_input(vid_upload);
+                hide(file_text_div);
+                clear_input(file_text);
+                hide(name_input_div);
+                clear_input(name_input);
+                hide(submit_button);
+
+            } 
+            else {
+                hide(lesson_select_divs[i]);
+                clear_select(lesson_select);
+                hide(type_select_div);
+                clear_select(type_select);
+                hide(doc_upload_div);
+                clear_input(doc_upload);
+                hide(vid_upload_div);
+                clear_input(vid_upload);
+                hide(file_text_div);
+                clear_input(file_text);
+                hide(name_input_div);
+                clear_input(name_input);
+                hide(submit_button);
+            }
+        }
+        
+        lesson_select.onchange = function () {
+            show(type_select_div);
+            clear_select(type_select);
+            hide(doc_upload_div);
+            clear_input(doc_upload);
+            hide(vid_upload_div);
+            clear_input(vid_upload);
+            hide(file_text_div);
+            clear_input(file_text);
+            hide(name_input_div);
+            clear_input(name_input);
+            hide(submit_button);
+        };
+    });
+
+    type_select.addEventListener("change", function () {
+        if (type_select.value == "document"){
+            show(doc_upload_div);
+            clear_input(doc_upload);
+            hide(vid_upload_div);
+            clear_input(vid_upload);
+            hide(file_text_div);
+            clear_input(file_text);
+            show(name_input_div);
+            clear_input(name_input);
+            show(submit_button);
+        }
+        else if (type_select.value == "video") {
+            hide(doc_upload_div);
+            clear_input(doc_upload);
+            show(vid_upload_div);
+            clear_input(vid_upload);
+            hide(file_text_div);
+            clear_input(file_text);
+            show(name_input_div);
+            clear_input(name_input);
+            show(submit_button);
+        }
+        else {
+            hide(doc_upload_div);
+            clear_input(doc_upload);
+            hide(vid_upload_div);
+            clear_input(vid_upload);
+            show(file_text_div);
+            clear_input(file_text);
+            show(name_input_div);
+            clear_input(name_input);
+            show(submit_button);
+        }
+    });
+
+    $("document").ready(function(){
+        $("#doc_upload").change(function() {
+            var path = $("#doc_upload").val();
+            console.log(path);
+            var filename = path.split('\\');
+            name_input.value = filename[filename.length - 1];
+            submit_button.disabled = false;
+        });
+    });
+
+    $("document").ready(function(){
+        $("#vid_upload").change(function() {
+            var path = $("#vid_upload").val();
+            console.log(path);
+            var filename = path.split('\\');
+            name_input.value = filename[filename.length - 1];
+            submit_button.disabled = false;
+        });
+    });
+
+    file_text.addEventListener("change", function () {
+        if (file_text.value.length > 0) {
+            name_input.value = file_text.value;
+            submit_button.disabled = false;
+        }
+    });
+
+    function hide(element) {
+        element.style.display = "none";
+    }
+
+    function show(element) {
+        element.style.display = "block";
+    }
+
+    function clear_select(element) {
+        element.selectedIndex = 0;
+    }
+
+    function clear_input(element) {
+        element.value = "";
+    }
+
+    
+</script>
+{% endblock %}

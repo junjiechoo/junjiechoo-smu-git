@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <figure class="text-center">
+        <p ><h2 style="font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">{%trans%}WELCOME TO LEARNING ACADEMY 🧠📚 {%endtrans%}</h2></p>
+    </figure>
+    <figure class="text-center">
+        <blockquote class="blockquote">
+        <p>Formal Education will make you a <b style="color:red">LIVING</b>. Self Education will make you a <b style="color:green">FORTUNE</b>.</p>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+        Quote by <cite title="Source Title">JIM ROHN</cite>
+        </figcaption>
+    </figure>
+
+
+    <center><p style="margin-top: 50px;"><a class="btn btn-warning" href={{ url_for('main.admin_page') }}><b>{%trans%}Admin Page{%endtrans%}</b></a> <br><p>(roles_required: admin@example.com / Password1)</p></p></center>
+    
+{% endblock %}

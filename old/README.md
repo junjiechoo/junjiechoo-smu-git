@@ -1,1 +1,0 @@
-# junjiechoo-smu-git
