@@ -1,10 +1,10 @@
 # coding: utf-8
-from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String, Text
+from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import INT4RANGE, TIME, JSONB
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.expression import column
-from sqlalchemy.sql.sqltypes import JSON
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.sql.expression import column
+# from sqlalchemy.sql.sqltypes import JSON
 from sqlalchemy.schema import FetchedValue
 from app import db
 import json
@@ -384,7 +384,6 @@ class Quiz(db.Model):
     classId = Column(String(144), nullable=False)
     quizContent = Column(ARRAY(JSONB), nullable=True)
     
-
     def __init__(self, quizId, quizName, graded, classId, quizContent):
         self.quizId = quizId
         self.quizName = quizName
@@ -392,7 +391,6 @@ class Quiz(db.Model):
         self.classId = classId
         self.quizContent = quizContent
         
-
     def getQuizId(self):
         return self.quizId
 
@@ -410,13 +408,13 @@ class Quiz(db.Model):
 
     def setGraded(self, graded):
         self.graded = graded
-    
+
     def getClassId(self):
         return self.classId
 
     def setClassId(self, classId):
         self.classId = classId
-    
+
     def getQuizContent(self):
         self.quizContent = json.dumps(self.quizContent)
         return self.quizContent
