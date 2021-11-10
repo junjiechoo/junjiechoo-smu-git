@@ -47,10 +47,25 @@ class Employee(db.Model):
     email = db.Column(String(144))
     contactNo = db.Column(Integer)
 
-    def __init__(self, eid, email, contactno):
-        self.employeeId = eid
+    def setEID(self, id):
+        self.employeeId = id
+    
+    def getEID(self):
+        return self.employeeId
+
+    def setEmail(self, email):
         self.email = email
-        self.contactNo = contactno
+
+    def getEmail(self):
+        return self.email
+
+    def setContact(self, no):
+        self.contactNo = no
+
+    def getContact(self):
+        return self.contactNo
+
+
 
     def json(self):
         return {
