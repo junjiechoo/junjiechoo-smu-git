@@ -6,6 +6,7 @@
 #
 # Authors: Ling Thio <ling.thio@gmail.com>
 
+from datetime import date, datetime, time
 from app.commands.init_db import init_db
 import pytest
 from app import create_app, db as the_db
@@ -81,6 +82,17 @@ def captured_templates(app):
     finally:
         template_rendered.disconnect(record, app)
 
+@pytest.fixture
+def enrolment():
+    return Enrolment("IS111","L001","Approved","completed",1,"C001")
+
+@pytest.fixture
+def lesson():
+    return Lesson("LS001", 1, "Lesson1", "C001", "", ["M001"],  "Q001")
+
+@pytest.fixture
+def class_table():
+    return Class("C001", "IS111 C001", 45, "IS111", "T001", date(2021,4,1), date(2021,4,10),time(1,0), time(12,0), 10, datetime(2021,1,1,1,0), datetime(2021,1,1,12,0), ["1"])
 
 @pytest.fixture
 def quiz():

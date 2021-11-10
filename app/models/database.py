@@ -9,7 +9,7 @@ from sqlalchemy.schema import FetchedValue
 from app import db
 import json
 
-
+# Cheng Hong
 class Course(db.Model):
     __tablename__ = 'Course'
 
@@ -39,13 +39,33 @@ class Course(db.Model):
     def getRetireStatus(self):
         return self.retireStatus
 
-
+# Cheng Hong
 class Employee(db.Model):
     __tablename__ = 'Employee'
 
     employeeId = db.Column(String(8), primary_key=True)
     email = db.Column(String(144))
     contactNo = db.Column(Integer)
+
+    def setEID(self, id):
+        self.employeeId = id
+    
+    def getEID(self):
+        return self.employeeId
+
+    def setEmail(self, email):
+        self.email = email
+
+    def getEmail(self):
+        return self.email
+
+    def setContact(self, no):
+        self.contactNo = no
+
+    def getContact(self):
+        return self.contactNo
+
+
 
     def json(self):
         return {
@@ -55,6 +75,7 @@ class Employee(db.Model):
         }
 
 
+# Cheng Hong
 class HumanResource(Employee):
     __tablename__ = 'HumanResource'
 
@@ -67,7 +88,10 @@ class HumanResource(Employee):
     def getHrName(self):
         return self.HRName
 
+    def setHrName(self, name):
+        self.HRName = name
 
+# Junjie
 class Learner(Employee):
     __tablename__ = 'Learner'
 
@@ -110,7 +134,7 @@ class Learner(Employee):
     def setCoursesApplied(self, coursesApplied):
         self.coursesApplied = coursesApplied
 
-
+# Qi Long
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
 
@@ -144,7 +168,6 @@ class Trainer(db.Model):
         self.coursesAssigned = courses
 
 
-
 class Class(db.Model):
     __tablename__ = 'Class'
 
@@ -165,6 +188,21 @@ class Class(db.Model):
     Course = relationship('Course')
     Trainer = relationship('Trainer')
 
+    def __init__(self,classId,className,noStudents,courseId,trainerId,startDate,endDate,startTime,endTime,numAvailableSeats,enrolmentStart,enrolmentEnd,lessonIdList):
+        self.classId = classId
+        self.className = className
+        self.noStudents = noStudents
+        self.courseId = courseId
+        self.trainerId = trainerId
+        self.startDate = startDate
+        self.endDate = endDate
+        self.startTime = startTime
+        self.endTime = endTime
+        self.numAvailableSeats = numAvailableSeats
+        self.enrolmentStart = enrolmentStart
+        self.enrolmentEnd = enrolmentEnd
+        self.lessonIdList = lessonIdList
+
     def getCourseId(self):
         return self.courseId
     
@@ -180,7 +218,7 @@ class Forum(db.Model):
 
     Employee = relationship('Employee')
 
-
+# Keith
 class Enrolment(db.Model):
     __tablename__ = 'Enrolment'
 
@@ -234,6 +272,7 @@ class Enrolment(db.Model):
         classTimings = Class.query.filter_by(classId=classId)
         return classTimings[0].getStartendDate()
 
+# Keith
 class Lesson(db.Model):
     __tablename__ = 'Lesson'
 
@@ -261,14 +300,8 @@ class Lesson(db.Model):
     def getLessonId(self):
         return self.lessonId
 
-    def getLessonNo(self):
-        return self.lessonNo
-
     def getLessonTitle(self):
         return self.lessonTitle
-
-    def getCourseId(self):
-        return self.courseId
 
     def getPrereqLessonId(self):
         return self.prereqLessonId
@@ -276,7 +309,7 @@ class Lesson(db.Model):
     def getMaterialIdList(self):
         return self.materialIdList
 
-
+# Junjie
 class LessonStatus(db.Model):
     __tablename__ = 'LessonStatus'
 
@@ -302,7 +335,7 @@ class LessonStatus(db.Model):
     def setCompletionStatus(self, status):
         self.completionStatus = status
 
-
+# Junyi
 class Material(db.Model):
     __tablename__ = 'Material'
 
@@ -338,7 +371,6 @@ class Material(db.Model):
             materialId=materialId).first()
         return material_record
 
-
 class MaterialAccess(db.Model):
     __tablename__ = 'MaterialAccess'
 
@@ -346,7 +378,7 @@ class MaterialAccess(db.Model):
     materialId = db.Column(String(144), primary_key=True)
     accessStatus = db.Column(Boolean, nullable=False)
 
-
+# Qi Long
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
     
@@ -396,7 +428,7 @@ class Quiz(db.Model):
     def setQuizContent(self, quizContent):
         self.quizContent = quizContent
 
-
+# Qi Long
 class Score(db.Model):
     __tablename__ = 'Score'
 
