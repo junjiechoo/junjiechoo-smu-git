@@ -2,13 +2,15 @@
 #
 # Authors: Ling Thio <ling.thio@gmail.com>
 
-from __future__ import print_function  # Use print() instead of print
+from __future__ import print_function
+from re import template  # Use print() instead of print
 from flask import url_for
+from flask.signals import template_rendered
 from app.models.database import *
 from app.views.main_views import *
 from .conftest import captured_templates
 import json
-
+import codecs
 
 def test_home_page(client, session):
     # Visit home page
@@ -35,26 +37,6 @@ def test_course_home(client, session, captured_templates):
     assert isinstance(context["enrolment"][0], Enrolment)
     assert context["enteredCourses"] == True
 
-
-def test_course_apply(client, session):
-
-    userInfo = {
-        "courseId": "IS113",
-        "learnerId": "L003",
-    }
-
-    userInfo = json.dumps(userInfo)
-
-    response = client.post(
-        "/learner/courses",
-        data=userInfo,
-        headers={"Content-Type": "application/json"},
-        follow_redirects=True
-    )
-
-    assert response.json['code'] == 201
-
-
 def test_quiz_home(client, session, captured_templates):
     response = client.get("/trainer/quizzes", follow_redirects=True)
 
@@ -70,7 +52,6 @@ def test_quiz_home(client, session, captured_templates):
     assert list(context["lessonsWithoutQuiz"].keys())[0] == "LS001"
     assert list(context["lessonsWithoutQuiz"].values())[0] == "C001"
     assert context["enteredCreateQuiz"] == True
-
 
 def test_quiz_submission(client, session):
 
@@ -97,7 +78,75 @@ def test_quiz_submission(client, session):
         headers={"Content-Type": "multipart/form-data"},
     )
 
-    assert(response_quiz_created.data == b'quiz created')
+    assert(b'Quiz created' in response_quiz_created.data)
+    assert b'201' in response_quiz_created.data
+
+def test_course_application(client, session):
+    userInfo = {
+        "learnerId": "L003",
+        "courseId": "IS112"
+    }
+
+    userInfo = json.dumps(userInfo)
+
+    response = client.get(
+        f"/learner/courses/{userInfo}",
+        data=userInfo,
+        headers={"Content-Type": "application/json"},
+        follow_redirects=True
+    )
+    assert response.get_data() == b"Learner3 has applied for course IS112"
+
+def test_lesson_page(client, session, captured_templates):
+    response = client.get(
+        "/learner/courses/lesson",
+        follow_redirects=True
+    )
+
+    template, context = captured_templates[2]
+    
+    assert template.name == 'main/lesson.html'
+    assert context['learnerId'] == "L003"
+    assert 'course' is not None
+    assert context['enteredCourses'] == True
+    assert context['courseId'] == "IS111"
+    assert 'lesson_content' in context
+
+def test_uploadmaterials_page(client, session, captured_templates):
+    response = client.get(
+        "/courses/upload-materials",
+        follow_redirects=True
+    )
+
+    template, context = captured_templates[3]
+
+    assert template.name == 'main/upload_materials.html'
+    
+    assert len(list(context['courses'])) >= 1
+    assert len(list(context['lessons'])) >= 1
+    assert len(list(context['materials'])) >= 1
+
+def test_enrolment_page(client,session, captured_templates):
+    response = client.get(
+        "/learner/enrolment",
+        follow_redirects=True
+    )
+
+    template, context = captured_templates[4]
+
+    assert template.name == 'main/learner.html'
+    # assert context['enrolments'][0]. ==  4
+    assert context['enrolments'][0][1].displayCourseId() == "IS111"
+
+
+
+
+
+
+
+
+
+
 
 
 

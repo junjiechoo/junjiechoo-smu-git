@@ -11,12 +11,17 @@
                 <label for="course_select">Select Course</label>
                 <select name="course_select" class="form-control" id="course_select">
                     <option selected disabled>Select</option>
+                    {% if trainer.getCoursesAssigned() != None %}
                     {% for c in trainer.getCoursesAssigned() %}
                     <option value={{c}}>{{c}}</option>
                     {% endfor %}
+                    {% else %}
+                    <p>you are not assigned to any class</p>
+                    {% endif %}
                 </select>
             </div>
 
+            {% if trainer.getCoursesAssigned() != None %}
             {% for c in trainer.getCoursesAssigned() %}
             <div class="form-group pb-3 lesson_select_div" id="{{c}}">
                 <label for="lesson_select">Select Lesson</label>
@@ -30,6 +35,9 @@
                 </select>
             </div>
             {% endfor %}
+            {% else %}
+            <p>you are not assigned to any class</p>
+            {% endif %}
 
             <div class="form-group pb-3" id="type_select_div">
                 <label for="type_select">Select Material Type</label>

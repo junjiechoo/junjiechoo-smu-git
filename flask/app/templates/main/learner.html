@@ -51,7 +51,7 @@
             </tr>
             <tr>
                 {% for i in enrolments %}
-                    {% if i[0].getApprovalStatus() == 'approved' %}
+                    {% if i[0].getApprovalStatus() == 'Approved' %}
                         <td>{{i[0].getCourseId()}}</td>
                         <td>{{i[1].displayCourseName()}}</td>
                         <td>{{i[0].getClassId()}}</td>
@@ -147,7 +147,6 @@
             <button class="btn-sm btn-warning"
                 onclick="checkEligibility({{i.getPrerequisite()}}, '{{i.displayCourseId()}}', {{learner[0].getCoursesTaken()}}, '{{learner[0].getLearnerId()}}')">Check
                 Eligibility</button>
-
             {% endif %}
             <div id="{{i.displayCourseId()}}"></div>
 
