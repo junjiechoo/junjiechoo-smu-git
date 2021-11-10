@@ -368,19 +368,34 @@ class Quiz(db.Model):
 
     def getQuizId(self):
         return self.quizId
-    
+
+    def setQuizId(self, quizId):
+        self.quizId = quizId
+
     def getQuizName(self):
         return self.quizName
 
+    def setQuizName(self, quizName):
+        self.quizName = quizName
+
     def getGraded(self):
         return self.graded
+
+    def setGraded(self, graded):
+        self.graded = graded
+    
+    def getClassId(self):
+        return self.classId
+
+    def setClassId(self, classId):
+        self.classId = classId
     
     def getQuizContent(self):
         self.quizContent = json.dumps(self.quizContent)
         return self.quizContent
-    
-    def getClassId(self):
-        return self.classId
+
+    def setQuizContent(self, quizContent):
+        self.quizContent = quizContent
 
 # Qi Long
 class Score(db.Model):
@@ -403,6 +418,7 @@ class Score(db.Model):
 
     def getScoreId(self):
         return self.scoreId
+
     def getQuizId(self):
         return self.quizId
 
@@ -414,3 +430,18 @@ class Score(db.Model):
 
     def getScorePerc(self):
         return self.scorePerc
+
+    def setScoreId(self, scoreId):
+        self.scoreId = scoreId
+
+    def setQuizId(self, quizId):
+        self.quizId = quizId
+
+    def setLearnerId(self, learnerId):
+        self.learnerId = learnerId
+
+    def setCompletedStatus(self, completedStatus):
+        self.completedStatus = completedStatus
+
+    def setScorePerc(self, scorePerc):
+        self.scorePerc = scorePerc
