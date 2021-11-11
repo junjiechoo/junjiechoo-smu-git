@@ -390,14 +390,13 @@ class MaterialAccess(db.Model):
 class Quiz(db.Model):
     __tablename__ = 'Quiz'
     
-    quizId = Column(String(16), primary_key=True)
+    quizId = Column(String(16), primary_key=True, server_default=FetchedValue())
     quizName = Column(String(144), nullable=False)
     graded = Column(Boolean, nullable=False)
     classId = Column(String(144), nullable=False)
     quizContent = Column(ARRAY(JSONB), nullable=True)
     
-    def __init__(self, quizId, quizName, graded, classId, quizContent):
-        self.quizId = quizId
+    def __init__(self, quizName, graded, classId, quizContent):
         self.quizName = quizName
         self.graded = graded
         self.classId = classId

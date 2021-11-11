@@ -257,21 +257,10 @@ def create_quiz(quizInfo):
     else:
         graded = False
 
-    last_quizId = Quiz.query.order_by(Quiz.quizId.desc()).first()
-    if last_quizId == None:
-        last_quizId = 'Q001'
-    else:
-        last_quizId = last_quizId.quizId
-        quizId_alphabet = last_quizId[0]
-        quiz_number = int(last_quizId[1:])
-        quiz_number += 1
-        newQuizId = quizId_alphabet + str(quiz_number)
-        newQuizName = "Quiz " + str(quiz_number)
-
     classId = request.form['classDetails']
 
     try:
-        newQuiz = Quiz(newQuizId, newQuizName, graded, classId, quizContent)
+        newQuiz = Quiz(newQuizName, graded, classId, quizContent)
         db.session.add(newQuiz)
         db.session.commit()
     except:
@@ -286,8 +275,6 @@ def create_quiz(quizInfo):
         }
     ), 201
 
-    print("------------------------------")
-    return "quiz created"
 
 
 @main_blueprint.route('/courses/upload-materials')
