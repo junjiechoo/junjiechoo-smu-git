@@ -306,7 +306,7 @@ def upload_materials():
     else:
         last_materialId = last_materialId.materialId
         materialId_alphabet = last_materialId[0]
-        numbers = [int(mid[1:]) for mid in list_materialId]
+        numbers = [int(mid.getMaterialId()[1:]) for mid in list_materialId]
         material_number = max(numbers) + 1
         newMaterialId = materialId_alphabet + str(material_number)
 

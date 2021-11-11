@@ -49,17 +49,17 @@
                 <th>Start Date</th>
                 <th>End Date</th>
             </tr>
+            {% for i in enrolments %}
+                {% if i[0].getApprovalStatus() == 'Approved' %}
             <tr>
-                {% for i in enrolments %}
-                    {% if i[0].getApprovalStatus() == 'Approved' %}
-                        <td>{{i[0].getCourseId()}}</td>
-                        <td>{{i[1].displayCourseName()}}</td>
-                        <td>{{i[0].getClassId()}}</td>
-                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
-                        <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
-                    {% endif %}
-                {% endfor %}
+                <td>{{i[0].getCourseId()}}</td>
+                <td>{{i[1].displayCourseName()}}</td>
+                <td>{{i[0].getClassId()}}</td>
+                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[0]}}</td>
+                <td>{{i[0].getClassStartEndDate(i[0].getClassId())[1]}}</td>
             </tr>
+                {% endif %}
+            {% endfor %}
         </table>
     {% else %}
         <p>you have not enrolled into and course</p>
