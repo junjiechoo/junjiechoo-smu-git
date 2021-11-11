@@ -1,3 +1,7 @@
+Welcome to AIO Learning Academy Application
+
+Our application hosted on heroku: https://aiolearningacademy.herokuapp.com/
+
 To create a virtual environment:
 python -m venv venv
 
@@ -12,6 +16,3 @@ pip freeze > requirements
 
 Running the app:
 python manage.py runserver
-
-Regenerate the database ORMs:
-python generateORM.py
