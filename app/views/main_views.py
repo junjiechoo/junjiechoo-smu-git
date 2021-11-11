@@ -141,7 +141,9 @@ def lesson_page():
             "score": score if score else None,
         }
         lesson_content.append(content)
-        print(course)
+        print('----')
+        print(content)
+        print('----')
     return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 
 
