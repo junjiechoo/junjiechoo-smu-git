@@ -53,7 +53,7 @@ def enrolment_page():
 
     learner = Learner.query.filter_by(learnerId='L003')
     print("-----")
-    print(enrolments[0])
+    # print(enrolments[0])
     print(learner[0])
     return render_template('main/learner.html', learner=learner, enrolments=enrolments, enteredEnrolment=True)
 
