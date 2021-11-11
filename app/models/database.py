@@ -165,7 +165,7 @@ class Trainer(db.Model):
     def setCoursesAssigned(self, courses):
         self.coursesAssigned = courses
 
-
+# Keith
 class Class(db.Model):
     __tablename__ = 'Class'
 
@@ -207,7 +207,7 @@ class Class(db.Model):
     def getStartendDate(self):
         return self.startDate, self.endDate
 
-
+# Not used for now
 class Forum(db.Model):
     __tablename__ = 'Forum'
 
@@ -215,6 +215,10 @@ class Forum(db.Model):
     employeeId = db.Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), nullable=False)
 
     Employee = relationship('Employee')
+
+    def __init__(self, threadId, employeeId):
+        self.threadId = threadId
+        self.employeeId = employeeId
 
 # Keith
 class Enrolment(db.Model):

@@ -98,7 +98,10 @@ def class_table():
 def quiz():
     return Quiz("Q1", "Quiz 1", True, "C001", [{"test":"test"}])
 
-
 @pytest.fixture
 def score():
     return Score("Q1", "L003", True, 100)
+
+@pytest.fixture
+def trainer():
+    return Trainer("T1", "Trainer 1", ["IS111", "IS112"])

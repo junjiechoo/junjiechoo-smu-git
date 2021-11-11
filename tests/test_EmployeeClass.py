@@ -3,7 +3,6 @@ from app.models.database import *
 
 ## Done by: Ong Cheng Hong (01349553)
 
-
 def test_contact():
     employee = Employee()
     employee.setContact(999)
