@@ -105,3 +105,7 @@ def score():
 @pytest.fixture
 def trainer():
     return Trainer("T1", "Trainer 1", ["IS111", "IS112"])
+
+@pytest.fixture
+def material():
+    return Material("M001", "link", "hyperlink", "https://www.github.com/", "LS001")
