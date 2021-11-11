@@ -269,6 +269,9 @@ class Lesson(db.Model):
     def getLessonId(self):
         return self.lessonId
 
+    def getCourseId(self):
+        return self.courseId
+
     def getLessonTitle(self):
         return self.lessonTitle
 

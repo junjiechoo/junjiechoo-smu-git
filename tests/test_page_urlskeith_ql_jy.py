@@ -135,7 +135,6 @@ def test_enrolment_page(client,session, captured_templates):
     template, context = captured_templates[4]
 
     assert template.name == 'main/learner.html'
-    # assert context['enrolments'][0]. ==  4
     assert context['enrolments'][0][1].displayCourseId() == "IS111"
 
 
