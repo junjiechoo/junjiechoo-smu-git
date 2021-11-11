@@ -142,7 +142,7 @@ def lesson_page():
         }
         lesson_content.append(content)
         print('----')
-        print(content)
+        print(score)
         print('----')
     return render_template('main/lesson.html', learnerId=learnerId, course=course, enteredCourses=True, courseId=courseId, lesson_content=lesson_content)
 

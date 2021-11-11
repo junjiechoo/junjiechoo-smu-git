@@ -168,6 +168,10 @@
                                         <a href="#"
                                             onclick="renderQuiz('{{ quiz.getQuizId() }}', '{{ quiz.getQuizName() }}', '{{ quiz.getQuizContent() }}', '{{ score.getCompletedStatus() }}' ,'{{ score.getScorePerc() }}')">{{quiz.getQuizName()}}</a>
                                         <br />
+                                        {% elif quiz %}
+                                        <a href="#"
+                                            onclick="renderQuiz('{{ quiz.getQuizId() }}', '{{ quiz.getQuizName() }}', '{{ quiz.getQuizContent() }}', false , 0)">{{quiz.getQuizName()}}</a>
+                                        <br />
                                         {% endif %}
                                     </div>
 
