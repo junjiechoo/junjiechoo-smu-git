@@ -3,8 +3,9 @@ from datetime import date
 from app.models.database import *
 import pytest
 
+# Done by Keith (01348868)
 def test_Enrolment_class(enrolment):
-    # enrolment = Enrolment("IS111","L001","Approved","completed",1,"C001")
+    
     assert enrolment.getCourseId() == "IS111"
     assert enrolment.getLearnerId() == "L001"
     assert enrolment.getApprovalStatus() == "Approved"

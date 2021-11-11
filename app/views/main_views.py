@@ -22,7 +22,7 @@ import subprocess
 import os
 
 s3 = boto3.client('s3',
-                  aws_access_key_id='', aws_secret_access_key=''
+                  aws_access_key_id='AKIA45COZBM2IR5UOVXO', aws_secret_access_key='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'
                   )
 
 BUCKET_NAME = 'keithprojectbucket'
@@ -66,23 +66,6 @@ def courses_page():
     enrolment = Enrolment.query.filter_by(learnerId='L003')
     return render_template('main/learner.html', courses=courses, learner=learner, trainer=trainer, enrolment=enrolment, enteredCourses=True)
 
-# for HR to assign trainer and learners to a course
-# @main_blueprint.route('/learner/courses/<string:id>', methods=['POST', 'GET'])
-# def course_id(id):
-#     learner = request.form.get('learner')
-#     learner_to_update = Learner.query.filter_by(learnerName=learner).first()
-#     learner_to_update = Learner.query.get(learner_to_update.learnerId)
-
-#     trainer = request.form.get('trainer')
-#     trainer_to_update = Trainer.query.filter_by(trainerName=trainer).first()
-#     trainer_to_update = Trainer.query.get(trainer_to_update.trainerId)
-
-#     learner_to_update.enrolledCourses.append(id)
-#     trainer_to_update.coursesAssigned.append(id)
-#     db.session.commit()
-
-#     return render_template('main/learner.html')
-
 
 @main_blueprint.route('/admin/courses/<string:id>', methods=['POST', 'GET'])
 def course_id(id):
@@ -123,7 +106,6 @@ def coursewithdraw_id(id):
 @main_blueprint.route('/learner/courses/<string:userInfo>', methods=['GET'])
 def applicationInfo(userInfo):
     userInfo = json.loads(userInfo)
-    print()
     print(
         f"Learner: {userInfo['learnerId']} is now applying for courseId: {userInfo['courseId']}")
     print('------------------')
@@ -133,10 +115,6 @@ def applicationInfo(userInfo):
     newEnrolment = Enrolment(
         userInfo['courseId'], userInfo['learnerId'], 'Approved', 'Approved', 0, 'C001')
     db.session.add(newEnrolment)
-
-    # delete test row
-    # Enrolment.query.filter_by(enrolmentId = 'E002').delete()
-    # DELETE FROM spm."Enrolment" WHERE "enrolmentId" = 'E6';
 
     db.session.commit()
     print("application successful")
@@ -195,7 +173,6 @@ def create_score():
         }
     ), 201
 
-# IGNORE ALL BELOW FIRST
 # The Admin page is accessible to users with the 'admin' role
 @main_blueprint.route('/admin')
 def admin_page():

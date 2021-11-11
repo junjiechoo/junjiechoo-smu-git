@@ -2,6 +2,7 @@ from __future__ import print_function
 from app.models.database import *
 import pytest
 
+# Done by Choo Jun Jie
 def test_learner_id():
     learner1 = Learner()
     learner1.setLearnerID("L005")

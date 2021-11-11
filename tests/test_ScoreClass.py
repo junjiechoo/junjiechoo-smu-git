@@ -3,6 +3,7 @@ import pytest
 from app.models.database import *
 from .conftest import *
 
+# Done by Low Qi Long (01354150)
 def test_get_scoreId(score):
     score.setScoreId("S1")
     assert score.getScoreId() == "S1"

@@ -1,10 +1,10 @@
 # coding: utf-8
-from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, LargeBinary, String, Text
+from sqlalchemy import ARRAY, Boolean, Column, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import INT4RANGE, TIME, JSONB
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.expression import column
-from sqlalchemy.sql.sqltypes import JSON
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.sql.expression import column
+# from sqlalchemy.sql.sqltypes import JSON
 from sqlalchemy.schema import FetchedValue
 from app import db
 import json
@@ -47,12 +47,33 @@ class Employee(db.Model):
     email = db.Column(String(144))
     contactNo = db.Column(Integer)
 
+    def setEID(self, id):
+        self.employeeId = id
+    
+    def getEID(self):
+        return self.employeeId
+
+    def setEmail(self, email):
+        self.email = email
+
+    def getEmail(self):
+        return self.email
+
+    def setContact(self, no):
+        self.contactNo = no
+
+    def getContact(self):
+        return self.contactNo
+
+
+
     def json(self):
         return {
             "employeeId": self.employeeId,
             "email": self.email,
             "contactNo": self.contactNo
         }
+
 
 # Cheng Hong
 class HumanResource(Employee):
@@ -66,6 +87,9 @@ class HumanResource(Employee):
 
     def getHrName(self):
         return self.HRName
+
+    def setHrName(self, name):
+        self.HRName = name
 
 # Junjie
 class Learner(Employee):
@@ -118,6 +142,11 @@ class Trainer(db.Model):
     trainerName = db.Column(String(144), nullable=False)
     coursesAssigned = db.Column(ARRAY(String(length=8)))
 
+    def __init__(self, trainerId, trainerName, coursesAssigned):
+        self.trainerId =trainerId
+        self.trainerName = trainerName
+        self.coursesAssigned = coursesAssigned
+
     def getTrainerId(self):
         return self.trainerId
 
@@ -136,7 +165,7 @@ class Trainer(db.Model):
     def setCoursesAssigned(self, courses):
         self.coursesAssigned = courses
 
-
+# Keith
 class Class(db.Model):
     __tablename__ = 'Class'
 
@@ -157,7 +186,7 @@ class Class(db.Model):
     Course = relationship('Course')
     Trainer = relationship('Trainer')
 
-    def __init__(self,classId,className,noStudents,courseId,trainerId,startDate,endDate,startTime,endTime,numAvailableSeats,enrolmentStart,enrolmentEnd,lessonIdList):
+    def __init__(self, classId, className, noStudents, courseId, trainerId, startDate, endDate, startTime, endTime, numAvailableSeats, enrolmentStart, enrolmentEnd, lessonIdList):
         self.classId = classId
         self.className = className
         self.noStudents = noStudents
@@ -178,7 +207,7 @@ class Class(db.Model):
     def getStartendDate(self):
         return self.startDate, self.endDate
 
-
+# Not used for now
 class Forum(db.Model):
     __tablename__ = 'Forum'
 
@@ -186,6 +215,10 @@ class Forum(db.Model):
     employeeId = db.Column(ForeignKey('Employee.employeeId', ondelete='CASCADE'), nullable=False)
 
     Employee = relationship('Employee')
+
+    def __init__(self, threadId, employeeId):
+        self.threadId = threadId
+        self.employeeId = employeeId
 
 # Keith
 class Enrolment(db.Model):
@@ -280,6 +313,9 @@ class Lesson(db.Model):
 
     def getMaterialIdList(self):
         return self.materialIdList
+    
+    def getCourseId(self):
+        return self.courseId
 
 # Junjie
 class LessonStatus(db.Model):
@@ -360,7 +396,6 @@ class Quiz(db.Model):
     classId = Column(String(144), nullable=False)
     quizContent = Column(ARRAY(JSONB), nullable=True)
     
-
     def __init__(self, quizId, quizName, graded, classId, quizContent):
         self.quizId = quizId
         self.quizName = quizName
@@ -368,7 +403,6 @@ class Quiz(db.Model):
         self.classId = classId
         self.quizContent = quizContent
         
-
     def getQuizId(self):
         return self.quizId
 
@@ -386,13 +420,13 @@ class Quiz(db.Model):
 
     def setGraded(self, graded):
         self.graded = graded
-    
+
     def getClassId(self):
         return self.classId
 
     def setClassId(self, classId):
         self.classId = classId
-    
+
     def getQuizContent(self):
         self.quizContent = json.dumps(self.quizContent)
         return self.quizContent

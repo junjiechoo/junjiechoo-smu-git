@@ -3,6 +3,7 @@ import pytest
 from app.models.database import *
 from .conftest import *
 
+# Done by Low Qi Long (01354150)
 def test_get_quizId(quiz):
     assert quiz.getQuizId() == "Q1"
     
