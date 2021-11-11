@@ -2,6 +2,7 @@
 #
 
 
+from logging import error
 import xml.dom.minidom
 from flask import Blueprint, redirect, render_template
 from flask import request, url_for
@@ -230,8 +231,7 @@ def quiz_page():
 
 @main_blueprint.route('/trainer/quizzes/<string:quizInfo>', methods=['POST'])
 def create_quiz(quizInfo):
-    newQuizId = ""
-    newQuizName = ""
+    newQuizName = "testQuiz"
     graded = ""
     classId = ""
     quizContent = []
@@ -263,6 +263,7 @@ def create_quiz(quizInfo):
 
     try:
         newQuiz = Quiz(newQuizName, graded, classId, quizContent)
+        print(newQuiz)
         db.session.add(newQuiz)
         db.session.commit()
     except:

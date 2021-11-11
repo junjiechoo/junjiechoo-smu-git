@@ -96,7 +96,9 @@ def class_table():
 
 @pytest.fixture
 def quiz():
-    return Quiz("Q1", "Quiz 1", True, "C001", [{"test":"test"}])
+    quiz1 = Quiz("Quiz 1", True, "C001", [{"test":"test"}])
+    quiz1.setQuizId("Q1")
+    return quiz1
 
 @pytest.fixture
 def score():
