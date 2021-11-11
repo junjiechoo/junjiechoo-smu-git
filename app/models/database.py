@@ -374,11 +374,24 @@ class Material(db.Model):
     def getFileLink(self):
         return self.fileLink
 
+    def setMaterialId(self, materialId):
+        self.materialId = materialId
+
+    def setMaterialName(self, materialName):
+        self.materialName = materialName
+
+    def setMaterialType(self, materialType):
+        self.materialType = materialType
+
+    def setFileLink(self, fileLink):
+        self.fileLink = fileLink
+
     def getMaterialbyId(self, materialId):
         material_record = Material.query.filter_by(
             materialId=materialId).first()
         return material_record
 
+# Junyi
 class MaterialAccess(db.Model):
     __tablename__ = 'MaterialAccess'
 
